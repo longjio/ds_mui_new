@@ -34,7 +34,6 @@ const DsDateTimePicker: React.FC<DsDateTimePickerProps> = ({ label, value, onCha
                         sx: {
                             // 1. 팝업 컨테이너 자체의 높이는 내용물에 맞게 자동 조절
                             height: 'auto',
-
                             // 2. MUI 컴포넌트에서 시간과 분 밑에 길게 남는 영역 스타일 수정
                             '& .MuiMultiSectionDigitalClockSection-root::after': {
                                 height: 0,

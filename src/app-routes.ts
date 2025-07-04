@@ -121,6 +121,14 @@ export const menuGroups: MenuGroup[] = [
                     import('./pages/DateTimePage').then(module => ({ default: module.DateTimePage }))
                 ),
             },
+            {
+                text: 'Time',
+                path: '/time',
+                id: 'item-time',
+                component: lazy(() =>
+                    import('./pages/TimePage').then(module => ({ default: module.TimePage }))
+                ),
+            },
         ],
     },
 ];
