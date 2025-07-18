@@ -22,11 +22,9 @@
     "@types/react-dom": "^19.1.6",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
-    "gh-pages": "^6.3.0",
     "pretendard": "^1.3.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
     "react-syntax-highlighter": "^15.6.1",
@@ -35,8 +33,7 @@
     "zustand": "^5.0.6"
   },
   "scripts": {
-                "start": "cross-env HOST=127.0.0.1 NODE_OPTIONS=--max-old-space-size=8192 react-scripts start",
-
+    "start": "cross-env HOST=127.0.0.1 NODE_OPTIONS=--max-old-space-size=8192 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -64,6 +61,7 @@
   },
   "devDependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
+    "gh-pages": "^6.3.0",
     "patch-package": "^8.0.0"
   }
 }
