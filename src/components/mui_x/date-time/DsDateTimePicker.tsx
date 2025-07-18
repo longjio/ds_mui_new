@@ -11,7 +11,7 @@ import { DateTimePicker, DateTimePickerProps } from '@mui/x-date-pickers/DateTim
 /**
  * MUI의 DateTimePickerProps를 기반으로 하되, value와 onChange는 직접 관리
  */
-interface DsDateTimePickerProps extends Omit<DateTimePickerProps<Dayjs>, 'value' | 'onChange'> {
+interface DsDateTimePickerProps extends Omit<DateTimePickerProps, 'value' | 'onChange'> {
     label: string;
     value: Dayjs | null;
     onChange: (newValue: Dayjs | null) => void;
@@ -20,7 +20,7 @@ interface DsDateTimePickerProps extends Omit<DateTimePickerProps<Dayjs>, 'value'
 const DsDateTimePicker: React.FC<DsDateTimePickerProps> = ({ label, value, onChange, ...rest }) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker<Dayjs>
+            <DateTimePicker
                 label={label}
                 value={value}
                 onChange={onChange}

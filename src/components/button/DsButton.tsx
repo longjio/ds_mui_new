@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Button, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress'; // 로딩 상태를 위한 임포트
-import Box from '@mui/material/Box'; // <--- 이 줄을 여기로 옮깁니다!
+import Box from '@mui/material/Box'; //
 
 // DsButtonProps 정의: MuiButtonProps를 확장하여 필요한 props를 추가하거나 수정합니다.
 // 여기서는 'variant', 'color', 'size' 등의 기본값을 설정하거나,
@@ -45,7 +45,8 @@ export function DsButton({
                              variant = 'contained', // 기본 variant 설정
                              color = 'primary',     // 기본 color 설정
                              size = 'medium',      // 기본 size 설정
-                             disabled = false,
+                             disabled = false,     
+                             disableElevation = true, // disableElevation을 true로 설정하여 그림자 효과를 제거
                              loading = false,
                              loadingPosition = 'start',
                              loadingIndicator,
@@ -70,6 +71,7 @@ export function DsButton({
             color={color}
             size={size}
             disabled={actualDisabled}
+            disableElevation={disableElevation}
             onClick={handleClick}
             {...rest} // startIcon, endIcon 등 나머지 props 전달
         >

@@ -14,16 +14,16 @@ const DsGridPage = () => {
             </Typography>
             <DsGrid container spacing={2}>
                 {/* ✅ FIX: 'size' prop 대신 xs, sm, md 등의 breakpoint prop을 사용합니다. */}
-                <DsGrid xs={8}>
+                <DsGrid size={{ xs: 8}}>
                     <DsGridItemStyled>xs=8</DsGridItemStyled>
                 </DsGrid>
-                <DsGrid xs={4}>
+                <DsGrid size={{ xs: 4}}>
                     <DsGridItemStyled>xs=4</DsGridItemStyled>
                 </DsGrid>
-                <DsGrid xs={4}>
+                <DsGrid size={{ xs: 4}}>
                     <DsGridItemStyled>xs=4</DsGridItemStyled>
                 </DsGrid>
-                <DsGrid xs={8}>
+                <DsGrid size={{ xs: 8}}>
                     <DsGridItemStyled>xs=8</DsGridItemStyled>
                 </DsGrid>
             </DsGrid>

@@ -5,10 +5,7 @@ import { Grid as MuiGrid, GridProps as MuiGridProps, Paper, styled } from '@mui/
 
 export interface DsGridProps extends MuiGridProps {}
 
-const DsGrid: React.FC<DsGridProps> = (props) => {
-    const { item = true, ...rest } = props;
-    return <MuiGrid item={item} {...rest} />;
-};
+const DsGrid: React.FC<DsGridProps> = (props) => <MuiGrid {...props} />;
 
 // ✅ DsGridItemStyled가 반드시 여기에 정의되고 export 되어야 합니다.
 export const DsGridItemStyled = styled(Paper)(({ theme }) => ({

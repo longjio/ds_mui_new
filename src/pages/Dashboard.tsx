@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
             {/* ... (페이지 제목 및 다른 차트들은 그대로) */}
 
             {/* PieChart */}
-            <DsGrid xs={12} sm={6} md={4}>
+            <DsGrid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Typography variant="h6" component="h2" gutterBottom>
                         Traffic Source
@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
             </DsGrid>
 
             {/* RadarChart */}
-            <DsGrid xs={12} sm={6} md={4}>
+            <DsGrid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Typography variant="h6" component="h2" gutterBottom>
                         Performance Radar

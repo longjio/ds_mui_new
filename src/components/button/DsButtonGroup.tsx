@@ -39,7 +39,7 @@ export function DsButtonGroup({
                                   size = 'medium',       // 기본 size 설정
                                   orientation = 'horizontal', // 기본 orientation 설정
                                   disabled = false,
-                                  disableElevation = false, // contained variant에서 그림자 제거 여부
+                                  disableElevation = true, // contained variant에서 그림자 제거 여부
                                   fullWidth = false,
                                   ...rest // 나머지 MuiButtonGroupProps (예: sx, 'aria-label' 등)
                               }: DsButtonGroupProps) {

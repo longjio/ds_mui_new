@@ -1,9 +1,8 @@
 // src/components/mui_x/time/DsTimePicker.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import type { Dayjs } from 'dayjs';
-import { Button, DialogActions } from '@mui/material';
+import { Button, Box } from '@mui/material';
 
-// MUI X Date Pickers의 핵심 컴포넌트들을 가져옵니다.
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker, TimePickerProps } from '@mui/x-date-pickers/TimePicker';
@@ -11,94 +10,105 @@ import { PickersActionBarProps } from '@mui/x-date-pickers/PickersActionBar';
 
 /**
  * DsTimePicker의 Props 정의
- * MUI의 TimePickerProps를 기반으로 하되, value와 onChange는 우리가 직접 관리합니다.
  */
-interface DsTimePickerProps extends Omit<TimePickerProps<Dayjs>, 'value' | 'onChange'> {
-    /**
-     * 시간 선택기의 레이블 텍스트입니다.
-     */
+interface DsTimePickerProps extends Omit<TimePickerProps, 'value' | 'onChange'> {
     label: string;
-    /**
-     * 현재 선택된 시간 값입니다.
-     */
     value: Dayjs | null;
-    /**
-     * 값이 변경될 때 호출되는 콜백 함수입니다.
-     */
     onChange: (newValue: Dayjs | null) => void;
 }
 
-/**
- * "OK" 버튼에 Primary 스타일을 적용하기 위한 커스텀 액션 바입니다.
- * @param props MUI가 전달하는 액션 바 관련 props
- */
-const CustomActionBar = (props: PickersActionBarProps) => {
-    const { onAccept, onCancel, actions, getActionText } = props;
+interface CustomActionBarProps extends PickersActionBarProps {
+     onAccept: () => void;
+    onCancel: () => void;
+    handleClose: () => void;
+}
 
-    if (actions == null || actions.length === 0) {
-        return null;
-    }
+/**
+ * 안정성을 위해 '취소'와 'OK' 버튼을 직접 렌더링하는 커스텀 액션 바입니다.
+ */
+const CustomActionBar = (props: CustomActionBarProps) => {
+    const { onCancel, onAccept, handleClose } = props;
+
+    const handleCancelClick = () => {
+        if (typeof onCancel === 'function') {
+            onCancel();
+        }
+        handleClose();
+    };
+
+    const handleAcceptClick = () => {
+        if (typeof onAccept === 'function') {
+            onAccept();
+        }
+        handleClose();
+    };
 
     return (
-        <DialogActions>
-            {actions.map((action) => {
-                // 'accept' (OK) 액션일 경우에만 primary 스타일을 적용합니다.
-                const buttonProps = {
-                    ...(action === 'accept' && {
-                        variant: 'contained' as const,
-                        color: 'primary' as const,
-                    }),
-                };
-                return (
-                    <Button
-                        key={action}
-                        onClick={action === 'cancel' ? onCancel : onAccept}
-                        {...buttonProps}
-                    >
-                        {getActionText(action)}
-                    </Button>
-                );
-            })}
-        </DialogActions>
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                padding: '8px 16px',
+                borderTop: 1,
+                borderColor: 'divider',
+            }}
+        >
+            <Button onClick={handleCancelClick} color="primary">
+                Cancel
+            </Button>
+            <Button onClick={handleAcceptClick} variant="contained" color="primary" sx={{ ml: 1 }}>
+                OK
+            </Button>
+        </Box>
     );
 };
 
 /**
  * 디자인 시스템에 맞게 커스터마이징된 TimePicker 컴포넌트입니다.
- * LocalizationProvider를 내장하여, 사용할 때마다 감싸줄 필요가 없습니다.
  */
 const DsTimePicker: React.FC<DsTimePickerProps> = ({ label, value, onChange, ...rest }) => {
+    const [open, setOpen] = useState(false);
+
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <TimePicker<Dayjs>
+            <TimePicker
                 label={label}
                 value={value}
                 onChange={onChange}
                 ampm={false}
-                // OK/Cancel 버튼이 항상 표시되도록 설정합니다.
                 closeOnSelect={false}
+                open={open}
+                onOpen={() => setOpen(true)}
+                onClose={() => setOpen(false)}
                 sx={{
-                    width: '100%', // 기본 너비를 100%로 설정하여 레이아웃 잡기 용이
+                    width: '100%',
                 }}
-                // 'slots' prop을 사용하여 액션 바를 커스텀 컴포넌트로 교체합니다.
                 slots={{
-                    actionBar: CustomActionBar,
+                    actionBar: (props) => <CustomActionBar {...props} onAccept={() => setOpen(false)} onCancel={() => setOpen(false)} handleClose={() => setOpen(false)} />,
+
                 }}
-                // 팝업 UI 관련 스타일을 수정합니다.
+                // 모든 문제 해결 코드를 통합합니다.
                 slotProps={{
+                    // [추가] 시간 선택 영역 아래의 불필요한 공간을 제거합니다.
                     desktopPaper: {
                         sx: {
-                            // 1. 팝업 컨테이너 자체의 높이는 내용물에 맞게 자동 조절
                             height: 'auto',
-
-                            // 2. 시간과 분 밑에 길게 남는 영역 스타일 수정
                             '& .MuiMultiSectionDigitalClockSection-root::after': {
                                 height: 0,
                             },
                         },
                     },
+                    // 버튼이 하단에 위치하도록 레이아웃을 수정합니다.
+                    layout: {
+                        sx: {
+                            '.MuiPickersLayout-contentWrapper': {
+                                gridColumn: 'unset',
+                                gridRow: 'unset',
+                            },
+                        },
+                    },
                 }}
-                // 나머지 모든 props를 전달하여 유연성을 확보합니다.
                 {...rest}
             />
         </LocalizationProvider>

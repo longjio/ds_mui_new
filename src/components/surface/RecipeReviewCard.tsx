@@ -20,7 +20,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import Image2 from '../../assets/images/img_coffee.jpg'; // 경로가 ../../ 로 변경되었습니다.
 
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;

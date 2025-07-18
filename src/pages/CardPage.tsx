@@ -54,7 +54,7 @@ const CardPage = () => {
             <DsGrid container spacing={4}>
                 {/* 중요: 'size' prop을 사용하여 반응형 크기를 객체로 전달합니다. */}
                 {/* Grid v2에서는 전체 너비가 12입니다. */}
-                <DsGrid xs={12} sm={4}>
+                <DsGrid size={{ xs: 12, sm: 4 }}>
                     <DsCard
                         overline="Word of the Day"
                         title={cardData.outlined.title}
@@ -73,7 +73,7 @@ const CardPage = () => {
                 </DsGrid>
 
                 {/* 다른 모든 카드 아이템들도 동일하게 'size' prop을 사용합니다. */}
-                <DsGrid xs={12} sm={4}>
+                <DsGrid size={{ xs: 12, sm: 4 }}>
                     <DsCard
                         variant="elevation"
                         elevation={6}
@@ -91,7 +91,7 @@ const CardPage = () => {
                     />
                 </DsGrid>
 
-                <DsGrid xs={12} sm={4}>
+                <DsGrid size={{ xs: 12, sm: 4 }}>
                     <DsCard variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <MuiCardMedia
                             component="img"
@@ -114,7 +114,7 @@ const CardPage = () => {
                     </DsCard>
                 </DsGrid>
 
-                <DsGrid xs={12} sm={4}>
+                <DsGrid size={{ xs: 12, sm: 4 }}>
                     <DsCard
                         overline={cardData.quickTip.title}
                         title="Remember This!"
@@ -129,11 +129,11 @@ const CardPage = () => {
                     />
                 </DsGrid>
 
-                <DsGrid xs={12} sm={4}>
+                <DsGrid size={{ xs: 12, sm: 4 }}>
                     <RecipeReviewCard {...paellaRecipeData} />
                 </DsGrid>
 
-            <DsGrid xs={12} sm={4}>
+            <DsGrid size={{ xs: 12, sm: 4 }}>
                     <DsCard
                         title={cardData.basic.title}
                         content={

@@ -3,7 +3,6 @@ import {
     Box,
     Tabs,
     Tab,
-    Typography,
     TabsProps as MuiTabsProps,
 } from '@mui/material';
 

@@ -51,6 +51,48 @@ mdi tab 기능 구현
 2025.06.25
 좌측 메뉴 스크롤 잘리는 문제 해결
 
+2025.07.10
+코드 블록을 예쁘게 보여주는 구문 강조(Syntax Highlighting)
+npm install react-syntax-highlighter
+npm install --save-dev @types/react-syntax-highlighter
+
+npm install zustand
+
+
+2025.07.11
+로그인 페이지 만들기에 앞서 가짜 백엔드 인증서비스 만들기
+src/api/services/authService.ts
+
+"회원 카드" - 인증 컨텍스트 만들기
+src/contexts/AuthContext.tsx (새 파일)
+
+
+2025.07.16
+Button, ButtonGroup의 shadow 스타일 각 컴포넌트 파일에서 제거
+disableElevation = true,
+
+ComponentShowcase 에 react-syntax-highlighter 재설치
+npm install --save-dev @types/react-syntax-highlighter
+
+캐시 정리나 검증이 필요할 때 npm cache verify
+
+
+2025.07.17
+DsGrid는 size prop에 객체로 전달
+예시 : <DsGrid size={{ xs: 12, sm: 6, md: 4 }}>
+
+2025.07.18
+페이지들이 안뜨고 404 뜨고 난리.
+커스텀 훅 생성
+
+
+
+2025.07.20 현승에게 물어볼것들!!!!!
+로그인과 로그아웃 기능을 가상으로 구현했는데 이대로 둘것인지, 수정해야 할 게 있는지?
+메뉴 route 구조에 대한 검토 - 나중에 메뉴 data를 불러올 걸 감안해서 수정을 해야 하는지, 지금 이대로도 충분한지?
+아키텍트 관점에서 프로젝트 구조나 흐름에 문제가 없는지?
+npm으로 실행하는데 앞으로도 문제 없을지?
+
 
 IntelliJ의 강력한 캐시 초기화 기능 사용:
 •IntelliJ는 단순 재시작보다 더 강력한 캐시 무효화 및 재시작 기능이 있습니다.
@@ -70,44 +112,23 @@ ToggleButton: 어떤 상태(State)를 켜거나 끄거나, 여러 옵션 중 하
 selected prop이 true이면 버튼이 선택된 상태로 보이고, false이면 선택되지 않은 상태로 보임.
 
 
-다크테마 구현
-import * as React from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+Gemini에게 질문할때
+1. 핵심 파일들의 내용 제공하기 (가장 중요)프로젝트의 뼈대를 이루는 핵심 파일들의 내용을 알려주시는 것이 가장 효과적입니다.
+마치 건물의 기초, 기둥, 대들보 설계도를 보여주는 것과 같습니다.
+요청 시작 시, 아래 파일들의 내용을 복사해서 붙여넣어 주세요.
+1.package.json: 어떤 라이브러리(자재)를 사용하는지 알 수 있습니다.
+2.src/index.tsx 또는 src/main.tsx: 프로젝트의 가장 첫 시작점을 알 수 있습니다.
+3.src/App.tsx: 전체 애플리케이션의 최상위 구조를 파악할 수 있습니다.
+4.src/routes.tsx: 페이지 이동(라우팅) 규칙 전체를 이해할 수 있습니다.
+5.src/app-config.ts: (우리 프로젝트의 핵심) 모든 페이지와 메뉴의 '마스터 설계도'를 파악할 수 있습니다.
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
+2. 프로젝트 구조(폴더 트리) 보여주기터미널 명령어를 사용하면 프로젝트의 전체 폴더 구조를 텍스트로 쉽게 만들 수 있습니다.
+이는 저에게 전체 지도를 보여주는 것과 같습니다.
+프로젝트의 최상위 폴더(D:/ds_mui_new)에서 아래 명령어를 실행하고 그 결과를
+복사해서 알려주세요.Windows (Command Prompt):
+Get-ChildItem -Recurse src | ForEach-Object { $_.FullName.Substring($pwd.Path.Length) }
 
-export function App() {
-  return (
-    <ThemeProvider theme={darkTheme}>
-      {/* 여기에 기존 컴포넌트들 */}
-    </ThemeProvider>
-  );
-}
-
-다크/라이트 전환
-import React, { useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { Button } from '@mui/material';
-
-export function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const theme = createTheme({
-    palette: {
-      mode: isDarkMode ? 'dark' : 'light',
-    },
-  });
-
-  return (
-    <ThemeProvider theme={theme}>
-      <div style={{ padding: '20px' }}>
-        <Button variant="contained" onClick={() => setIsDarkMode(!isDarkMode)}>
-          {isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
-        </Button>
-      </div>
-    </ThemeProvider>
-  );
+3. 명확한 목표와 맥락 설명하기
+"이 버튼을 고쳐줘" 보다는 "현재 MainLayout.tsx에 있는 MDI 탭을 우클릭했을 때
+'닫기' 메뉴가 나오게 하고 싶습니다. 관련 상태는 MainLayout.tsx에서 관리했으면 합니다." 와 같이
+구체적인 목표와 맥락을 함께 설명해주시면 제가 훨씬 더 정확하게 의도를 파악할 수 있습니다.

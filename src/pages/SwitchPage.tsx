@@ -1,7 +1,7 @@
 // src/pages/SwitchPage.tsx
 
 import React, { useState } from 'react';
-import { styled, useTheme } from '@mui/material/styles'; // useTheme 추가
+import { styled } from '@mui/material/styles'; 
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel';
 import Switch, { SwitchProps as MuiSwitchProps } from '@mui/material/Switch';

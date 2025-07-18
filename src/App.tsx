@@ -1,44 +1,29 @@
+// D:/ds_mui_new/src/App.tsx
+
 import React from 'react';
-import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-
-import { routesConfig } from './routes';
-import { getTheme } from './theme';
-import { SnackbarProvider } from './contexts/SnackbarProvider';
-import { ThemeContextProvider, useThemeContext } from './contexts/ThemeContext';
-
-// AppRoutes 컴포넌트 (useRoutes 훅 사용)
-const AppRoutes = () => {
-    const element = useRoutes(routesConfig);
-    return element;
-};
-
-// ThemeProvider와 그 자식들을 별도 컴포넌트로 분리합니다.
-// 이렇게 해야 useThemeContext가 ThemeContextProvider의 컨텍스트에 접근할 수 있습니다.
-const AppContent = () => {
-    const { mode } = useThemeContext(); // Context에서 현재 테마 모드를 가져옵니다.
-    const theme = React.useMemo(() => getTheme(mode), [mode]); // 모드에 따라 테마를 동적으로 생성합니다.
-
-    return (
-        <ThemeProvider theme={theme}>
-            <SnackbarProvider>
-                <CssBaseline />
-                <Router basename={process.env.PUBLIC_URL}>
-                    <AppRoutes />
-                </Router>
-            </SnackbarProvider>
-        </ThemeProvider>
-    );
-};
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+// [수정] App.tsx는 더 이상 CssBaseline을 import할 필요가 없습니다.
+import { ThemeModeProvider } from './contexts/ThemeModeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import LoginPage from './pages/LoginPage';
+import MainLayout from './layouts/MainLayout';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
     return (
-        // 최상위를 ThemeContextProvider로 감싸서
-        // 모든 자식 컴포넌트가 테마 컨텍스트에 접근할 수 있도록 합니다.
-        <ThemeContextProvider>
-            <AppContent />
-        </ThemeContextProvider>
+        <ThemeModeProvider>
+            {/* CssBaseline이 ThemeModeProvider 내부로 이동했으므로 여기서 제거합니다. */}
+            <BrowserRouter basename={process.env.PUBLIC_URL}>
+                <AuthProvider>
+                    <Routes>
+                        <Route path="/" element={<LoginPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/app/*" element={<MainLayout />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                    </Routes>
+                </AuthProvider>
+            </BrowserRouter>
+        </ThemeModeProvider>
     );
 }
 

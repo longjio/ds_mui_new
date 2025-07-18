@@ -5,7 +5,6 @@ import { Box, Typography } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 
 // 우리가 만든 커스텀 DsTimePicker 컴포넌트를 가져옵니다.
-// 경로는 실제 파일 위치에 맞게 조정해야 할 수 있습니다.
 import DsTimePicker from '../components/mui_x/time/DsTimePicker';
 
 export const TimePage = () => {
@@ -13,7 +12,9 @@ export const TimePage = () => {
     const [timeValue, setTimeValue] = useState<Dayjs | null>(null);
 
     // 두 번째 TimePicker의 값을 저장하기 위한 state (기본값 설정)
-    const [timeWithDefault, setTimeWithDefault] = useState<Dayjs | null>(dayjs('2022-04-17T15:30'));
+    const [timeWithDefault, setTimeWithDefault] = useState<Dayjs | null>(
+        dayjs('2022-04-17T15:30')
+    );
 
     return (
         <Box sx={{ p: 3 }}>
@@ -34,9 +35,8 @@ export const TimePage = () => {
                 <DsTimePicker
                     label="시간 선택"
                     value={timeValue}
-                    onChange={(newValue) => {
-                        setTimeValue(newValue);
-                    }}
+                    // onChange 핸들러를 간소화하여 가독성을 높입니다.
+                    onChange={setTimeValue}
                 />
             </Box>
 
@@ -59,9 +59,8 @@ export const TimePage = () => {
                 <DsTimePicker
                     label="예약 시간 (30분 단위)"
                     value={timeWithDefault}
-                    onChange={(newValue) => {
-                        setTimeWithDefault(newValue);
-                    }}
+                    // 여기도 마찬가지로 핸들러를 간소화합니다.
+                    onChange={setTimeWithDefault}
                     // DsTimePicker는 MUI TimePicker의 모든 props를 그대로 전달받아 사용할 수 있습니다.
                     minutesStep={30}
                 />

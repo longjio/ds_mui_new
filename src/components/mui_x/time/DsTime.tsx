@@ -6,7 +6,8 @@ import { Dayjs } from 'dayjs';
 
 // DateTimePickerProps는 날짜 타입(Dayjs) 하나만 제네릭으로 받습니다.
 // Omit을 사용하여 우리가 직접 관리할 'value'와 'onChange'만 제외합니다.
-interface DsTimeProps extends Omit<DateTimePickerProps<Dayjs>, 'value' | 'onChange'> {
+interface DsTimeProps extends Omit<DateTimePickerProps, 'value' | 'onChange'> {
+
     /**
      * The label for the time picker.
      */
@@ -27,7 +28,7 @@ interface DsTimeProps extends Omit<DateTimePickerProps<Dayjs>, 'value' | 'onChan
 const DsTime: React.FC<DsTimeProps> = ({ label, value, onChange, ...rest }) => {
     return (
         // 사용하는 컴포넌트에도 날짜 타입(Dayjs)만 명시합니다.
-        <DateTimePicker<Dayjs>
+        <DateTimePicker
             label={label}
             value={value}
             onChange={onChange}

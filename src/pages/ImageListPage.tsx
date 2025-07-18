@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography, Stack, IconButton } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography } from '@mui/material';
 import { DsImageList, DsImageListItem } from '../components/layout/DsImageList';
 
 // 예시 이미지 데이터

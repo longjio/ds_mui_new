@@ -1,284 +1,172 @@
-// D:/ds_mui/src/layouts/MainLayout.tsx
+// D:/ds_mui_new/src/layouts/MainLayout.tsx
 
-import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import {
-    AppBar,
-    Toolbar,
-    Typography,
-    Box,
-    CssBaseline,
-    Drawer,
-    IconButton,
-    List,
-    ListItemButton,
-    ListItemText,
-    useTheme,
-    useMediaQuery,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    Tabs,
-    Tab,
-    Menu,
-    MenuItem as MuiMenuItem,
+    Box, CircularProgress, useTheme, useMediaQuery, Drawer, AppBar, Toolbar,
+    IconButton, Typography, Tabs, Tab, Chip, Button,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
-import { menuGroups, MenuItem } from '../app-routes';
+
+import { useAuth } from '../contexts/AuthContext';
 import { ThemeModeButtonGroup } from '../components/common/ThemeModeButtonGroup';
-import Dashboard from '../pages/Dashboard';
+import { routableItems, menuStructure } from '../menu-data';
+import { MenuItem } from '../types/menu';
+import DrawerContent from './DrawerContent';
+import NotFoundPage from '../pages/NotFoundPage';
 
 const drawerWidth = 240;
 
-type OpenTabInfo = Omit<MenuItem, 'children'>;
-
-const MainLayout = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const [mobileOpen, setMobileOpen] = useState(false);
+export default function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { user, logout } = useAuth();
 
-    const [openTabs, setOpenTabs] = useState<OpenTabInfo[]>([]);
-    const [activeTabId, setActiveTabId] = useState<string | null>(null);
+    const [openTabs, setOpenTabs] = useState<MenuItem[]>([]);
+    const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [isMobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
-
+    // URL이 변경될 때마다 탭 상태를 동기화하는 단일 useEffect
     useEffect(() => {
-        const currentPath = location.pathname;
-        if (openTabs.some(tab => tab.path === currentPath)) {
-            setActiveTabId(currentPath);
-        } else if (currentPath === '/') {
-            setActiveTabId(null);
+        const currentItem = routableItems.find(item => item.path === location.pathname);
+
+        if (currentItem) {
+            // [수정 1] undefined일 경우 null을 사용하도록 변경
+            setActiveTab(currentItem.path ?? null);
+            // 현재 아이템이 탭 목록에 없으면 추가
+            if (!openTabs.some(tab => tab.id === currentItem.id)) {
+                setOpenTabs(prev => [...prev, currentItem]);
+            }
+        } else {
+            // 일치하는 아이템이 없으면 404 상태
+            setActiveTab(location.pathname);
         }
-    }, [location.pathname, openTabs]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname]); // URL 변경 시에만 실행
 
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
-
-    const handleMenuClick = (menuItem: MenuItem) => {
-        if (!menuItem.path) return;
-
-        if (!isMobile && !openTabs.some((tab: OpenTabInfo) => tab.id === menuItem.id)) {
-            const newTab: OpenTabInfo = {
-                id: menuItem.id,
-                text: menuItem.text,
-                path: menuItem.path,
-            };
-            setOpenTabs(prevTabs => [...prevTabs, newTab]);
+    // 앱 첫 로딩 시 기본 탭 설정
+    useEffect(() => {
+        const homeItem = routableItems.find(item => item.path === '/app');
+        if (homeItem) {
+            setOpenTabs([homeItem]);
+            // [수정 2] undefined일 경우 null을 사용하도록 변경
+            setActiveTab(homeItem.path ?? null);
+            // 현재 경로가 기본 경로가 아니라면 해당 경로로 이동
+            if (location.pathname !== '/app') {
+                navigate(location.pathname, { replace: true });
+            } else {
+                navigate('/app', { replace: true });
+            }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // 최초 1회만 실행
 
-        navigate(menuItem.path);
-        setActiveTabId(menuItem.path);
+    const handleDrawerToggle = () => setMobileDrawerOpen(!isMobileDrawerOpen);
 
+    const handleMenuClick = useCallback((item: MenuItem) => {
+        if (item.path) {
+            navigate(item.path);
+        }
         if (isMobile) {
-            handleDrawerToggle();
+            setMobileDrawerOpen(false);
         }
+    }, [navigate, isMobile]);
+
+    const handleTabChange = (event: React.SyntheticEvent, newPath: string) => {
+        navigate(newPath);
     };
 
-    const handleTabChange = (event: React.SyntheticEvent, newTabId: string) => {
-        setActiveTabId(newTabId);
-        navigate(newTabId);
-    };
-
-    const handleCloseTab = (e: React.MouseEvent, tabIdToClose: string) => {
+    const handleCloseTab = (e: React.MouseEvent, tabToClose: MenuItem) => {
         e.stopPropagation();
-
-        const newTabs = openTabs.filter(tab => tab.path !== tabIdToClose);
+        const tabIndex = openTabs.findIndex(tab => tab.id === tabToClose.id);
+        const newTabs = openTabs.filter(tab => tab.id !== tabToClose.id);
         setOpenTabs(newTabs);
 
-        if (activeTabId === tabIdToClose) {
+        if (activeTab === tabToClose.path) {
             if (newTabs.length > 0) {
-                const newActiveTab = newTabs[newTabs.length - 1];
-                setActiveTabId(newActiveTab.path!);
+                const newActiveTab = newTabs[Math.max(0, tabIndex - 1)];
                 navigate(newActiveTab.path!);
             } else {
-                setActiveTabId(null);
-                navigate('/');
+                navigate('/app');
             }
         }
     };
 
-    const handleContextMenu = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX - 2,
-                    mouseY: event.clientY + 14,
-                }
-                : null,
-        );
+    const handleTitleClick = useCallback(() => navigate('/app'), [navigate]);
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
-
-    const handleCloseContextMenu = () => {
-        setContextMenu(null);
-    };
-
-    const handleCloseAllTabs = () => {
-        setOpenTabs([]);
-        setActiveTabId(null);
-        navigate('/');
-        handleCloseContextMenu();
-    };
-
-    const drawerContent = (
-        <Box sx={{ overflow: 'auto', height: '100%' }}>
-            {menuGroups.map((group) => (
-                <Accordion key={group.id} disableGutters elevation={0} defaultExpanded sx={{ borderTop: '1px solid rgba(0, 0, 0, 0.12)', '&:before': { display: 'none' }, '&:last-child': { borderBottom: '1px solid rgba(0, 0, 0, 0.12)' } }}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${group.id}-content`} id={`${group.id}-header`}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{group.title}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ p: 0 }}>
-                        <List disablePadding>
-                            {group.items.map((item) => (
-                                <React.Fragment key={item.id}>
-                                    <ListItemButton onClick={() => handleMenuClick(item)} sx={{ pl: item.children ? 3 : 4 }}>
-                                        <ListItemText primary={item.text} />
-                                    </ListItemButton>
-                                    {item.children?.map((subItem) => (
-                                        <ListItemButton key={subItem.id} onClick={() => handleMenuClick(subItem)} sx={{ pl: 6 }}>
-                                            <ListItemText primary={subItem.text} />
-                                        </ListItemButton>
-                                    ))}
-                                </React.Fragment>
-                            ))}
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
-            ))}
-        </Box>
-    );
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{
-                    zIndex: theme.zIndex.drawer + 1,
-                }}
-            >
-                {/* ✅ [수정] Toolbar의 고정 패딩을 제거하여 반응형으로 개선하고, 내부에 IconButton을 추가합니다. */}
+        <Box sx={{ display: 'flex', height: '100vh' }}>
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
-                    {/* ✅ [추가] 모바일 뷰에서만 보이는 메뉴 버튼 */}
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{
-                            mr: 2,
-                            display: { md: 'none' }, // 'md'보다 작은 화면에서만 보이도록 설정
-                        }}
-                    >
+                    <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { sm: 'none' } }}>
                         <MenuIcon />
                     </IconButton>
-
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="div"
-                        onClick={() => { setOpenTabs([]); setActiveTabId(null); navigate('/'); }}
-                        sx={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer', flexGrow: 1 }}
-                    >
-                        SI Design System
+                    <Typography variant="h6" noWrap component="div" onClick={handleTitleClick} sx={{ flexGrow: 1, cursor: 'pointer' }}>
+                        SI DESIGN SYSTEM
                     </Typography>
-                    <ThemeModeButtonGroup />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {user && (
+                            <>
+                                <Chip label={`${user.name}님`} variant="outlined" sx={{ color: 'white', borderColor: 'white' }} />
+                                <Button color="inherit" onClick={handleLogout}>로그아웃</Button>
+                            </>
+                        )}
+                        <ThemeModeButtonGroup />
+                    </Box>
                 </Toolbar>
             </AppBar>
 
             <Drawer
                 variant={isMobile ? 'temporary' : 'permanent'}
-                open={isMobile ? mobileOpen : true}
-                onClose={isMobile ? handleDrawerToggle : undefined}
+                open={isMobile ? isMobileDrawerOpen : true}
+                onClose={handleDrawerToggle}
                 sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                        top: { xs: '56px', sm: '64px' },
-                        height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' },
-                    },
+                    width: drawerWidth, flexShrink: 0,
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', top: { xs: '56px', sm: '64px' }, height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' } },
                 }}
             >
-                {drawerContent}
+                <DrawerContent menuData={menuStructure} onMenuClick={handleMenuClick} />
             </Drawer>
 
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    pt: { xs: '56px', sm: '64px' },
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    height: '100vh',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
-            >
-                {!isMobile && location.pathname !== '/' && (
+            <Box component="main" sx={{ flexGrow: 1, pt: { xs: '56px', sm: '64px' }, width: { sm: `calc(100% - ${drawerWidth}px)` }, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+                {!isMobile && openTabs.length > 0 && (
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-                        <Tabs
-                            value={activeTabId || false}
-                            onChange={handleTabChange}
-                            variant="scrollable"
-                            scrollButtons="auto"
-                            allowScrollButtonsMobile
-                        >
+                        <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                             {openTabs.map((tab) => (
-                                <Tab
-                                    key={tab.id}
-                                    value={tab.path}
-                                    onContextMenu={handleContextMenu}
-                                    label={
-                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                                            {tab.text}
-                                            <IconButton size="small" component="span" onClick={(e) => handleCloseTab(e, tab.path!)} sx={{ ml: 1.5 }}>
-                                                <CloseIcon fontSize="small" />
-                                            </IconButton>
-                                        </Box>
-                                    }
-                                />
+                                <Tab key={tab.id} value={tab.path} label={
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        {tab.text}
+                                        <IconButton size="small" onClick={(e) => handleCloseTab(e, tab)} sx={{ ml: 1.5 }}><CloseIcon fontSize="small" /></IconButton>
+                                    </Box>
+                                } />
                             ))}
                         </Tabs>
                     </Box>
                 )}
-
-                <Box sx={{
-                    flexGrow: 1,
-                    overflow: 'auto',
-                    p: location.pathname === '/' ? 0 : 3,
-                    bgcolor: location.pathname === '/' ? 'transparent' : 'background.paper',
-                }}>
-                    {location.pathname !== '/' ? (
-                        <Outlet />
-                    ) : (
-                        <Dashboard />
-                    )}
+                <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+                    <Suspense fallback={<CircularProgress />}>
+                        <Routes>
+                            {routableItems.map(item => {
+                                // [수정 3] component와 path가 모두 있어야만 Route를 생성합니다.
+                                if (item.component && item.path) {
+                                    const PageComponent = item.component;
+                                    const relativePath = item.path.substring('/app'.length);
+                                    return <Route key={item.id} path={relativePath} element={<PageComponent />} />;
+                                }
+                                return null;
+                            })}
+                            <Route path="*" element={<NotFoundPage />} />
+                        </Routes>
+                    </Suspense>
                 </Box>
             </Box>
-
-            <Menu
-                open={contextMenu !== null}
-                onClose={handleCloseContextMenu}
-                anchorReference="anchorPosition"
-                anchorPosition={
-                    contextMenu !== null
-                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                        : undefined
-                }
-            >
-                <MuiMenuItem onClick={handleCloseAllTabs}>전체 탭 닫기</MuiMenuItem>
-            </Menu>
         </Box>
     );
-};
-
-export default MainLayout;
+}
