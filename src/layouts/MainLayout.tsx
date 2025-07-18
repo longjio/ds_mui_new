@@ -11,7 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeModeButtonGroup } from '../components/common/ThemeModeButtonGroup';
-import { routableItems, menuStructure } from '../menu-data';
+import { routableItems, menuStructure } from '../menu-data'; // menuStructure를 가져옵니다.
 import { MenuItem } from '../types/menu';
 import DrawerContent from './DrawerContent';
 import NotFoundPage from '../pages/NotFoundPage';
@@ -29,40 +29,32 @@ export default function MainLayout() {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-    // URL이 변경될 때마다 탭 상태를 동기화하는 단일 useEffect
+    // URL 변경 시 탭 상태 동기화
     useEffect(() => {
         const currentItem = routableItems.find(item => item.path === location.pathname);
-
         if (currentItem) {
-            // [수정 1] undefined일 경우 null을 사용하도록 변경
             setActiveTab(currentItem.path ?? null);
-            // 현재 아이템이 탭 목록에 없으면 추가
             if (!openTabs.some(tab => tab.id === currentItem.id)) {
                 setOpenTabs(prev => [...prev, currentItem]);
             }
         } else {
-            // 일치하는 아이템이 없으면 404 상태
             setActiveTab(location.pathname);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.pathname]); // URL 변경 시에만 실행
+    }, [location.pathname]);
 
     // 앱 첫 로딩 시 기본 탭 설정
     useEffect(() => {
         const homeItem = routableItems.find(item => item.path === '/app');
         if (homeItem) {
             setOpenTabs([homeItem]);
-            // [수정 2] undefined일 경우 null을 사용하도록 변경
             setActiveTab(homeItem.path ?? null);
-            // 현재 경로가 기본 경로가 아니라면 해당 경로로 이동
-            if (location.pathname !== '/app') {
-                navigate(location.pathname, { replace: true });
-            } else {
+            if (location.pathname === '/' || location.pathname === '/ds_mui_new/') {
                 navigate('/app', { replace: true });
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // 최초 1회만 실행
+    }, []);
 
     const handleDrawerToggle = () => setMobileDrawerOpen(!isMobileDrawerOpen);
 
@@ -132,6 +124,7 @@ export default function MainLayout() {
                     [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', top: { xs: '56px', sm: '64px' }, height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' } },
                 }}
             >
+                {/* [핵심] DrawerContent에게 menuStructure라는 '새 지도'를 props로 전달합니다. */}
                 <DrawerContent menuData={menuStructure} onMenuClick={handleMenuClick} />
             </Drawer>
 
@@ -154,7 +147,6 @@ export default function MainLayout() {
                     <Suspense fallback={<CircularProgress />}>
                         <Routes>
                             {routableItems.map(item => {
-                                // [수정 3] component와 path가 모두 있어야만 Route를 생성합니다.
                                 if (item.component && item.path) {
                                     const PageComponent = item.component;
                                     const relativePath = item.path.substring('/app'.length);

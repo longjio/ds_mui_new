@@ -33,42 +33,45 @@ export const routableItems: MenuItem[] = processRoutesToFlatList(appRoutes);
 
 /**
  * [핵심 수정]
- * appRoutes의 중첩 구조를 재귀적으로 탐색하여 특정 그룹에 속하는 모든 메뉴 아이템을 찾는 함수.
- * 부모-자식 관계를 유지하여 그룹 정보를 올바르게 상속받도록 합니다.
+ * appRoutes의 중첩 구조를 올바르게 탐색하여 특정 그룹에 속하는 모든 메뉴 아이템을 찾는, 더 똑똑해진 함수.
  */
 const findItemsForGroup = (routes: AppRouteConfig[], targetGroupId: string): MenuItem[] => {
-    let menuItems: MenuItem[] = [];
+    const menuItems: MenuItem[] = [];
 
     for (const route of routes) {
-        // Case 1: 현재 라우트 자체가 타겟 그룹에 속하는 단일 메뉴 아이템인 경우 (예: Foundations)
-        if (route.menu?.group === targetGroupId && route.component) {
-            const routableItem = routableItems.find(item => item.id === route.id);
-            if (routableItem) {
-                menuItems.push({
-                    id: route.id,
-                    text: route.menu.text,
-                    path: routableItem.path,
-                    icon: route.menu.icon,
-                    component: route.component,
-                });
-            }
-        }
+        // 현재 라우트의 메뉴 그룹이 타겟 그룹과 일치하는지 확인
+        if (route.menu?.group === targetGroupId) {
 
-        // Case 2: 현재 라우트가 타겟 그룹의 '컨테이너' 역할을 하고, 자식들이 실제 메뉴 아이템인 경우 (예: Components)
-        if (route.children && route.menu?.group === targetGroupId) {
-            const childItems = route.children
-                .filter(child => child.menu && child.component) // 메뉴 정보와 컴포넌트가 있는 자식만 필터링
-                .map(child => {
-                    const routableItem = routableItems.find(item => item.id === child.id);
-                    return {
-                        id: child.id,
-                        text: child.menu!.text,
-                        path: routableItem?.path ?? '',
-                        icon: child.menu!.icon,
-                        component: child.component,
-                    };
-                });
-            menuItems.push(...childItems);
+            // Case 1: 이 라우트가 자식을 가지고 있다면, 자식들이 실제 메뉴 아이템입니다. (예: Components)
+            if (route.children) {
+                const childItems = route.children
+                    .filter(child => child.menu && child.component) // 메뉴 정보와 컴포넌트가 있는 자식만 필터링
+                    .map(child => {
+                        // 전체 경로 목록에서 정확한 경로 정보를 찾아옵니다.
+                        const routableItem = routableItems.find(item => item.id === child.id);
+                        return {
+                            id: child.id,
+                            text: child.menu!.text,
+                            path: routableItem?.path ?? '',
+                            icon: child.menu!.icon,
+                            component: child.component,
+                        };
+                    });
+                menuItems.push(...childItems);
+            }
+            // Case 2: 이 라우트가 자식이 없다면, 이 라우트 자체가 메뉴 아이템입니다. (예: Foundations)
+            else if (route.component) {
+                const routableItem = routableItems.find(item => item.id === route.id);
+                if (routableItem) {
+                    menuItems.push({
+                        id: route.id,
+                        text: route.menu.text,
+                        path: routableItem.path,
+                        icon: route.menu.icon,
+                        component: route.component,
+                    });
+                }
+            }
         }
     }
     return menuItems;
