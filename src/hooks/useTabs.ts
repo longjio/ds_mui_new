@@ -2,20 +2,22 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MenuItem as AppMenuItem } from '../app-routes';
+// [개선] 타입의 원본 소스인 'types/menu'에서 직접 가져옵니다.
+import { MenuItem } from '../types/menu';
 
-export function useTabs(initialTabs: AppMenuItem[] = []) {
+// [개선] 별칭(AppMenuItem) 없이 원본 타입 이름을 그대로 사용합니다.
+export function useTabs(initialTabs: MenuItem[] = []) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [openTabs, setOpenTabs] = useState<AppMenuItem[]>(initialTabs);
+    const [openTabs, setOpenTabs] = useState<MenuItem[]>(initialTabs);
     const [activeTabPath, setActiveTabPath] = useState<string>('/');
 
     useEffect(() => {
         setActiveTabPath(location.pathname);
     }, [location.pathname]);
 
-    const handleMenuClick = useCallback((item: AppMenuItem) => {
+    const handleMenuClick = useCallback((item: MenuItem) => {
         if (item.path) {
             if (!openTabs.some(tab => tab.id === item.id)) {
                 setOpenTabs(prev => [...prev, item]);
@@ -28,7 +30,7 @@ export function useTabs(initialTabs: AppMenuItem[] = []) {
         navigate(newPath);
     };
 
-    const handleCloseTab = useCallback((e: React.MouseEvent, tabToClose: AppMenuItem) => {
+    const handleCloseTab = useCallback((e: React.MouseEvent, tabToClose: MenuItem) => {
         e.stopPropagation();
         const newTabs = openTabs.filter(tab => tab.id !== tabToClose.id);
         setOpenTabs(newTabs);
@@ -39,23 +41,18 @@ export function useTabs(initialTabs: AppMenuItem[] = []) {
         }
     }, [navigate, openTabs, activeTabPath, initialTabs]);
 
-    // [핵심] '전체 닫기' 로직을 추가합니다.
     const handleCloseAllTabs = useCallback(() => {
-        // 초기 탭(About Project)만 남깁니다.
         setOpenTabs(initialTabs);
-        // 홈으로 이동시킵니다.
         navigate('/app');
     }, [navigate, initialTabs]);
 
-
-    // [수정] 새로 만든 함수를 반환 객체에 포함시킵니다.
     return {
         openTabs,
         activeTabPath,
         handleMenuClick,
         handleTabChange,
         handleCloseTab,
-        handleCloseAllTabs, // 전체 닫기 함수 추가
+        handleCloseAllTabs,
         setOpenTabs
     };
 }

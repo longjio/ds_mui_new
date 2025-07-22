@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { RouteObject, Navigate } from 'react-router-dom';
+import { RouteObject } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 
 // Layouts
@@ -8,8 +8,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// 유일한 정보 출처인 app-routes에서 메뉴 그룹과 타입을 가져옵니다.
-import { componentMap } from './app-routes';
+// [개선] 유일한 정보 소스인 app-config에서 라우트 설정을 직접 가져옵니다.
+// app-routes.ts는 더 이상 필요하지 않습니다.
+import { appRoutes } from './app-config';
 
 // 로딩 중에 보여줄 컴포넌트
 const Loading = () => (
@@ -18,40 +19,34 @@ const Loading = () => (
     </Box>
 );
 
-// componentMap의 key와 value를 기반으로 모든 페이지 정보를 생성
-const allPages = Object.entries(componentMap).map(([path, component]) => ({
-    path,
-    component,
-}));
+// [개선] appRoutes 배열을 직접 사용하여 RouteObject를 동적으로 생성합니다.
+// 중간 단계의 변환(componentMap)이 사라져 코드가 더 직관적이고 효율적으로 변경됩니다.
+const childRoutes: RouteObject[] = appRoutes.map(route => {
+    const PageComponent = route.component;
+    // app-config의 path는 이미 '/'로 시작하므로, 앞의 '/'를 제거합니다.
+    const path = route.path.substring(1);
 
-// [개선] 추출된 페이지 정보를 기반으로 RouteObject를 동적으로 생성합니다.
-const childRoutes: RouteObject[] = allPages
-    .filter(page => page.path && page.component)
-    .map(page => {
-        const PageComponent = page.component;
-        const path = page.path.startsWith('/') ? page.path.substring(1) : page.path;
-
-        // 기본 경로('/')는 index 라우트로 명시적으로 처리하여 코드의 명확성을 높입니다.
-        if (path === '') {
-            return {
-                index: true,
-                element: (
-                    <Suspense fallback={<Loading />}>
-                        <PageComponent />
-                    </Suspense>
-                ),
-            };
-        }
-
+    // 기본 경로('/')는 index 라우트로 명시적으로 처리합니다.
+    if (path === '') {
         return {
-            path: path,
+            index: true,
             element: (
                 <Suspense fallback={<Loading />}>
                     <PageComponent />
                 </Suspense>
             ),
         };
-    });
+    }
+
+    return {
+        path: path,
+        element: (
+            <Suspense fallback={<Loading />}>
+                <PageComponent />
+            </Suspense>
+        ),
+    };
+});
 
 export const routesConfig: RouteObject[] = [
     {
@@ -66,13 +61,6 @@ export const routesConfig: RouteObject[] = [
         path: '/app',
         element: <MainLayout />,
         children: [
-            // [수정] '/app/dashboard'로의 강제 이동을 제거합니다.
-            // 이제 위에서 생성된 childRoutes의 index 라우트(AboutProjectPage)가
-            // 로그인 후 첫 화면으로 자연스럽게 표시됩니다.
-            // {
-            //     index: true,
-            //     element: <Navigate to="/app/dashboard" replace />,
-            // },
             ...childRoutes,
             // MainLayout 내에서 존재하지 않는 경로로 접근 시 NotFoundPage를 보여줍니다.
             { path: '*', element: <NotFoundPage /> },
