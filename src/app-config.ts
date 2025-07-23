@@ -40,8 +40,9 @@ export const appRoutes: AppRouteConfig[] = [
     { id: 'home', path: '/', component: lazy(() => import('./pages/AboutProjectPage')) },
 
     // Foundations 그룹
+    { id: 'component-showcase', path: '/component-showcase', component: lazy(() => import('./pages/ComponentShowcasePage')), menu: { text: 'Component Showcase', group: 'group-foundations' } },
     { id: 'typography', path: '/typography', component: lazy(() => import('./pages/TypographyPage')), menu: { text: 'Typography', group: 'group-foundations' } },
-
+    { id: 'signup-showcase', path: '/signup-showcase', component: lazy(() => import('./pages/SignupPage')), menu: { text: 'Signup Page', group: 'group-foundations' } },
     // Button 그룹
     { id: 'button', path: '/button', component: lazy(() => import('./pages/ButtonPage')), menu: { text: 'Button', group: 'group-button' } },
     { id: 'button-group', path: '/button-group', component: lazy(() => import('./pages/ButtonGroupPage')), menu: { text: 'ButtonGroup', group: 'group-button' } },
@@ -77,10 +78,13 @@ export const appRoutes: AppRouteConfig[] = [
     { id: 'progress', path: '/progress', component: lazy(() => import('./pages/ProgressPage')), menu: { text: 'Progress', group: 'group-feedback' } },
 
     // Layout 그룹
+    { id: 'dashboard', path: '/dashboard', component: lazy(() => import('./pages/Dashboard')), menu: { text: 'Dashboard', group: 'group-layout' } },
     { id: 'grid', path: '/grid', component: lazy(() => import('./pages/GridPage')), menu: { text: 'Grid', group: 'group-layout' } },
     { id: 'image-list', path: '/image-list', component: lazy(() => import('./pages/ImageListPage')), menu: { text: 'Image List', group: 'group-layout' } },
 
     // MUI X 그룹
     { id: 'data-grid', path: '/data-grid', component: lazy(() => import('./pages/DataGridPage')), menu: { text: 'Data Grid', group: 'group-mui-x' } },
     { id: 'date-picker', path: '/date-picker', component: lazy(() => import('./pages/DatePickerPage')), menu: { text: 'Date Picker', group: 'group-mui-x' } },
+    { id: 'tree-view', path: '/tree-view', component: lazy(() => import('./pages/TreePage')), menu: { text: 'Tree View', group: 'group-mui-x' } },
+    { id: 'date-time-picker', path: '/date-time-picker', component: lazy(() => import('./pages/DateTimePage')), menu: { text: 'Date Time Picker', group: 'group-mui-x'} },
 ];

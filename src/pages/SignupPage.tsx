@@ -1,3 +1,5 @@
+// D:/ds_mui_new/src/pages/SignupPage.tsx
+
 import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, CircularProgress, Alert, Link } from '@mui/material';
@@ -27,10 +29,11 @@ export default function SignupPage() {
 
         setIsLoading(true);
         try {
-                        await signup(id, password, name);
+            // 쇼케이스 페이지에서는 실제 회원가입 로직을 비활성화할 수도 있습니다.
+            // 여기서는 설명을 위해 기존 로직을 유지합니다.
+            await signup(id, password, name);
 
             setSuccess('회원가입에 성공했습니다! 로그인 페이지로 이동합니다.');
-            // 성공 후 2초 뒤에 로그인 페이지로 이동
             setTimeout(() => navigate('/'), 2000);
         } catch (err: any) {
             setError(err.message || '회원가입에 실패했습니다.');
@@ -42,11 +45,14 @@ export default function SignupPage() {
     return (
         <Box
             sx={{
+                // [수정] 전체 화면 높이(100vh)를 차지하는 대신,
+                // 레이아웃 내에서 자연스럽게 콘텐츠 높이만큼만 차지하도록 변경합니다.
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
+                // 상단과 하단에 여백을 주어 다른 UI 요소(AppBar, Tabs 등)와 겹치지 않게 합니다.
+                pt: 8,
+                pb: 8,
             }}
         >
             <Typography component="h1" variant="h5">
