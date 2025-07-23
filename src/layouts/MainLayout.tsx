@@ -5,13 +5,15 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box, CircularProgress, useTheme, useMediaQuery, Drawer, AppBar, Toolbar,
     IconButton, Typography, Tabs, Tab, Chip, Button,
+    Menu, // [추가] 컨텍스트 메뉴를 위해 import
+    MenuItem as MuiMenuItem, // [추가] MenuItem이 우리 타입과 겹치므로 별칭(MuiMenuItem)으로 import
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeModeButtonGroup } from '../components/common/ThemeModeButtonGroup';
-import { routableItems, menuStructure } from '../menu-data'; // menuStructure를 가져옵니다.
+import { routableItems, menuStructure } from '../menu-data';
 import { MenuItem } from '../types/menu';
 import DrawerContent from './DrawerContent';
 import NotFoundPage from '../pages/NotFoundPage';
@@ -29,6 +31,13 @@ export default function MainLayout() {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
+    // [추가] 탭 컨텍스트 메뉴 상태
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+        tab: MenuItem;
+    } | null>(null);
+
     // URL 변경 시 탭 상태 동기화
     useEffect(() => {
         const currentItem = routableItems.find(item => item.path === location.pathname);
@@ -38,10 +47,10 @@ export default function MainLayout() {
                 setOpenTabs(prev => [...prev, currentItem]);
             }
         } else {
+            // routableItems에 없는 경로(예: /app) 처리
             setActiveTab(location.pathname);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.pathname]);
+    }, [location.pathname, openTabs]); // openTabs 의존성 추가
 
     // 앱 첫 로딩 시 기본 탭 설정
     useEffect(() => {
@@ -49,6 +58,7 @@ export default function MainLayout() {
         if (homeItem) {
             setOpenTabs([homeItem]);
             setActiveTab(homeItem.path ?? null);
+            // 사용자가 루트 경로로 직접 들어왔을 경우 /app으로 리디렉션
             if (location.pathname === '/' || location.pathname === '/ds_mui_new/') {
                 navigate('/app', { replace: true });
             }
@@ -71,8 +81,11 @@ export default function MainLayout() {
         navigate(newPath);
     };
 
+    // [개선] 홈 탭(path: '/app')은 닫히지 않도록 수정
     const handleCloseTab = (e: React.MouseEvent, tabToClose: MenuItem) => {
         e.stopPropagation();
+        if (tabToClose.path === '/app') return; // 홈 탭 닫기 방지
+
         const tabIndex = openTabs.findIndex(tab => tab.id === tabToClose.id);
         const newTabs = openTabs.filter(tab => tab.id !== tabToClose.id);
         setOpenTabs(newTabs);
@@ -82,7 +95,7 @@ export default function MainLayout() {
                 const newActiveTab = newTabs[Math.max(0, tabIndex - 1)];
                 navigate(newActiveTab.path!);
             } else {
-                navigate('/app');
+                navigate('/app'); // 모든 탭이 닫히면 홈으로 이동
             }
         }
     };
@@ -92,6 +105,51 @@ export default function MainLayout() {
         logout();
         navigate('/login');
     };
+
+    // --- [추가] 컨텍스트 메뉴 핸들러들 ---
+    const handleTabContextMenu = (event: React.MouseEvent, tab: MenuItem) => {
+        event.preventDefault();
+        setContextMenu(contextMenu === null ? { mouseX: event.clientX + 2, mouseY: event.clientY - 6, tab } : null);
+    };
+
+    const handleCloseContextMenu = () => {
+        setContextMenu(null);
+    };
+
+    const handleCloseThisTab = () => {
+        if (contextMenu?.tab) {
+            handleCloseTab({ stopPropagation: () => {} } as React.MouseEvent, contextMenu.tab);
+        }
+        handleCloseContextMenu();
+    };
+
+    const handleCloseOthers = () => {
+        if (contextMenu?.tab) {
+            const homeItem = routableItems.find(item => item.path === '/app');
+            const currentTab = contextMenu.tab;
+            let tabsToKeep = [currentTab];
+            if (homeItem && homeItem.id !== currentTab.id) {
+                tabsToKeep.unshift(homeItem);
+            }
+            setOpenTabs(tabsToKeep);
+            navigate(currentTab.path!);
+        }
+        handleCloseContextMenu();
+    };
+
+    const handleCloseAllTabs = () => {
+        const homeItem = routableItems.find(item => item.path === '/app');
+        if (homeItem) {
+            setOpenTabs([homeItem]);
+            navigate(homeItem.path);
+        } else {
+            // 비상시 fallback
+            setOpenTabs([]);
+            navigate('/app');
+        }
+        handleCloseContextMenu();
+    };
+    // --- 컨텍스트 메뉴 핸들러 끝 ---
 
     return (
         <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -124,7 +182,6 @@ export default function MainLayout() {
                     [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', top: { xs: '56px', sm: '64px' }, height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' } },
                 }}
             >
-                {/* [핵심] DrawerContent에게 menuStructure라는 '새 지도'를 props로 전달합니다. */}
                 <DrawerContent menuData={menuStructure} onMenuClick={handleMenuClick} />
             </Drawer>
 
@@ -133,18 +190,29 @@ export default function MainLayout() {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
                         <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                             {openTabs.map((tab) => (
-                                <Tab key={tab.id} value={tab.path} label={
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        {tab.text}
-                                        <IconButton size="small" onClick={(e) => handleCloseTab(e, tab)} sx={{ ml: 1.5 }}><CloseIcon fontSize="small" /></IconButton>
-                                    </Box>
-                                } />
+                                <Tab
+                                    key={tab.id}
+                                    value={tab.path}
+                                    onContextMenu={(e) => handleTabContextMenu(e, tab)} // [추가] 컨텍스트 메뉴 이벤트 핸들러
+                                    sx={{ cursor: 'context-menu' }} // [추가] 마우스 커서 변경
+                                    label={
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {tab.text}
+                                            {/* [개선] 홈 탭에서는 닫기 버튼을 표시하지 않음 */}
+                                            {tab.path !== '/app' && (
+                                                <IconButton size="small" onClick={(e) => handleCloseTab(e, tab)} sx={{ ml: 1.5 }}>
+                                                    <CloseIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+                                        </Box>
+                                    }
+                                />
                             ))}
                         </Tabs>
                     </Box>
                 )}
                 <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
-                    <Suspense fallback={<CircularProgress />}>
+                    <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
                         <Routes>
                             {routableItems.map(item => {
                                 if (item.component && item.path) {
@@ -159,6 +227,20 @@ export default function MainLayout() {
                     </Suspense>
                 </Box>
             </Box>
+
+            {/* --- [추가] 컨텍스트 메뉴 UI --- */}
+            <Menu
+                open={contextMenu !== null}
+                onClose={handleCloseContextMenu}
+                anchorReference="anchorPosition"
+                anchorPosition={contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}
+            >
+                <MuiMenuItem onClick={handleCloseThisTab} disabled={contextMenu?.tab.path === '/app'}>
+                    이 탭 닫기
+                </MuiMenuItem>
+                <MuiMenuItem onClick={handleCloseOthers}>다른 탭 모두 닫기</MuiMenuItem>
+                <MuiMenuItem onClick={handleCloseAllTabs}>전체 탭 닫기</MuiMenuItem>
+            </Menu>
         </Box>
     );
 }
