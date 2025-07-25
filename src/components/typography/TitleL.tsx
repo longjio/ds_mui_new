@@ -11,7 +11,7 @@ const TitleL = ({ children }: TitleLProps) => {
     return (
         <Typography
             sx={{
-                fontSize: '30px',
+                fontSize: '28px',
                 fontWeight: '600',
                 fontFamily: 'Pretendard',
                 lineHeight: 1.5,

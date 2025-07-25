@@ -11,7 +11,7 @@ const TitleXS = ({ children }: TitleXSProps) => {
     return (
         <Typography
             sx={{
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: '600',
                 fontFamily: 'Pretendard',
                 lineHeight: 1.5,
