@@ -2,37 +2,77 @@
 import React from 'react';
 import {
     DataGrid as MuiDataGrid,
+    DataGridProps,
     GridColDef,
-    GridRowsProp,
 } from '@mui/x-data-grid';
-import { Box, SxProps, Theme } from '@mui/material'; // ✅ SxProps와 Theme를 직접 import
+import { SxProps, Theme } from '@mui/material';
 
-// ✅ FIX: 복잡한 MuiDataGridProps 상속 대신, 필요한 props만 명시적으로 정의합니다.
-// 이렇게 하면 타입 충돌의 원인이 되는 'sx' prop 상속을 피할 수 있습니다.
-export interface DsDataGridProps {
-    rows: GridRowsProp;
-    columns: GridColDef[];
-    sx?: SxProps<Theme>; // ✅ 타입을 명확하게 지정하여 충돌을 해결합니다.
-    // MUI DataGrid에서 사용하는 다른 모든 props를 받을 수 있도록 추가
-    [key: string]: any;
+export interface DsDataGridProps extends Omit<DataGridProps, 'sx'> {
+    sx?: SxProps<Theme>;
+    /**
+     * true로 설정하면 그리드 맨 앞에 'No' 컬럼이 자동으로 추가됩니다.
+     */
+    showRowNumber?: boolean;
+    /**
+     * true로 설정하면 그리드 맨 앞에 체크박스가 추가됩니다.
+     * @default false
+     */
+    checkboxSelection?: boolean;
 }
 
-const DsDataGrid: React.FC<DsDataGridProps> = ({ rows, columns, sx, ...rest }) => {
+const DsDataGrid: React.FC<DsDataGridProps> = ({
+                                                   rows,
+                                                   columns,
+                                                   sx,
+                                                   showRowNumber = false,
+                                                   checkboxSelection = false, // ★ 1. prop 추가 및 기본값 false 설정
+                                                   rowHeight = 38,
+                                                   columnHeaderHeight = 40,
+                                                   ...rest
+                                               }) => {
+
+    let processedColumns = columns.map(col => ({
+        headerAlign: 'center' as const,
+        ...col,
+    }));
+
+    if (showRowNumber) {
+        const rowNumberColumn: GridColDef = {
+            field: 'no',
+            headerName: 'No',
+            width: 50,
+            align: 'center',
+            headerAlign: 'center',
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            renderCell: (params) => {
+                return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1;
+            },
+        };
+        processedColumns.unshift(rowNumberColumn);
+    }
+
     return (
-        <Box sx={{ height: 400, width: '100%', ...sx }}>
-            <MuiDataGrid
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 5 },
-                    },
-                }}
-                pageSizeOptions={[5, 10]}
-                checkboxSelection
-                {...rest} // 나머지 모든 props를 전달합니다.
-            />
-        </Box>
+        <MuiDataGrid
+            rows={rows}
+            columns={processedColumns}
+            rowHeight={rowHeight}
+            columnHeaderHeight={columnHeaderHeight}
+            initialState={{
+                pagination: {
+                    paginationModel: { page: 0, pageSize: 5 },
+                },
+            }}
+            pageSizeOptions={[5, 10]}
+            checkboxSelection={checkboxSelection}
+            {...rest}
+            sx={{
+                width: '100%',
+                borderRadius: 0,
+                ...sx,
+            }}
+        />
     );
 };
 

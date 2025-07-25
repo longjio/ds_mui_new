@@ -63,6 +63,10 @@ npm install zustand
 로그인 페이지 만들기에 앞서 가짜 백엔드 인증서비스 만들기
 src/api/services/authService.ts
 
+2025.07.23
+npm install --save-dev @storybook/test
+
+
 "회원 카드" - 인증 컨텍스트 만들기
 src/contexts/AuthContext.tsx (새 파일)
 
