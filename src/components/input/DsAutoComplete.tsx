@@ -5,12 +5,6 @@ import MuiAutocomplete, { AutocompleteProps as MuiAutocompleteProps } from '@mui
 /**
  * DsAutoComplete 컴포넌트의 Props 인터페이스입니다.
  * MUI Autocomplete의 모든 속성을 확장합니다.
- *
- * 제네릭 타입:
- * @template T 옵션의 타입입니다.
- * @template Multiple 다중 값 허용 여부입니다.
- * @template DisableClearable 지우기 버튼 비활성화 여부입니다.
- * @template FreeSolo 자유 입력 모드 활성화 여부입니다.
  */
 export interface DsAutoCompleteProps<
     T,
@@ -18,40 +12,25 @@ export interface DsAutoCompleteProps<
     DisableClearable extends boolean | undefined,
     FreeSolo extends boolean | undefined,
 > extends MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo> {
-    // 향후 디자인 시스템의 Autocomplete에 특화된 커스텀 props를 여기에 추가할 수 있습니다.
-    // 예시:
-    // dsVariant?: 'standard' | 'compact';
+    // 향후 커스텀 props 추가 영역
 }
 
-/**
- * DsAutoComplete는 MUI Autocomplete를 감싸는 커스텀 Autocomplete 컴포넌트입니다.
- * 디자인 시스템의 기본 구성 요소로 설계되었습니다.
- * 표준 MUI Autocomplete가 허용하는 모든 props를 허용합니다.
- *
- * 제네릭 타입:
- * @template T 옵션의 타입입니다.
- * @template Multiple 다중 값 허용 여부입니다.
- * @template DisableClearable 지우기 버튼 비활성화 여부입니다.
- * @template FreeSolo 자유 입력 모드 활성화 여부입니다.
- */
-const DsAutoComplete = <
+// ★★★ 핵심 수정 사항 (1/2) ★★★
+// 'export default' 대신 'export const'를 사용하여 명명된(named) 내보내기를 합니다.
+// 이 방식은 Storybook과 같은 도구가 모듈을 더 안정적으로 분석하게 해줍니다.
+export const DsAutoComplete = <
     T,
-    Multiple extends boolean | undefined = undefined, // 컴포넌트로 쉽게 사용하기 위해 제네릭 기본값 설정
+    Multiple extends boolean | undefined = undefined,
     DisableClearable extends boolean | undefined = undefined,
     FreeSolo extends boolean | undefined = undefined,
 >(
     props: DsAutoCompleteProps<T, Multiple, DisableClearable, FreeSolo>,
 ): React.ReactElement => {
-    // 기본 래퍼의 경우 모든 props를 MUI Autocomplete로 그대로 전달합니다.
-    // 만약 DsAutoCompleteProps에 커스텀 props를 정의했다면,
-    // 여기서 해당 props를 구조 분해하여 처리한 후 나머지를 MuiAutocomplete로 전달합니다.
-    // 예시: const { dsVariant, ...otherMuiProps } = props;
-
     return (
         <MuiAutocomplete<T, Multiple, DisableClearable, FreeSolo>
-            {...props} // 모든 props를 직접 전달
+            {...props}
         />
     );
 };
 
-export default DsAutoComplete;
+// 파일 맨 아래에 'export default DsAutoComplete;' 라인이 있었다면 제거합니다.
