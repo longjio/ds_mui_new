@@ -21,8 +21,8 @@ export interface MenuGroupInfo {
 }
 
 // --- 메뉴 그룹 정의 ---
-// 요청하신 메뉴 그룹 목록을 모두 반영합니다.
 export const menuGroups: MenuGroupInfo[] = [
+    { id: 'group-template', title: 'Template' },
     { id: 'group-foundations', title: 'Foundations' },
     { id: 'group-button', title: 'Button' },
     { id: 'group-input', title: 'Input' },
@@ -33,16 +33,22 @@ export const menuGroups: MenuGroupInfo[] = [
     { id: 'group-mui-x', title: 'MUI X' },
 ];
 
-// --- ★★★★★ 유일한 정보 소스 (Single Source of Truth) ★★★★★ ---
-// 요청하신 모든 페이지의 경로와 메뉴 그룹 정보를 여기에 모두 정의합니다.
 export const appRoutes: AppRouteConfig[] = [
     // 메뉴에 표시되지 않는 페이지
     { id: 'home', path: '/', component: lazy(() => import('./pages/AboutProjectPage')) },
 
+    // Template 그룹
+    { id: 'menu-config', path: '/menu-config', component: lazy(() => import('./template/Menu')), menu: { text: '메뉴 관리', group: 'group-template' } },
+    { id: 'menu-obj-config', path: '/menu-obj-config', component: lazy(() => import('./template/MenuObj')), menu: { text: '메뉴 OBJ 관리', group: 'group-template' } },
+    { id: 'user-management', path: '/user-management', component: lazy(() => import('./template/User')), menu: { text: '사용자 관리', group: 'group-template' } },
+    { id: 'user-menu-auth', path: '/user-menu-auth', component: lazy(() => import('./template/UserMenu')), menu: { text: '사용자별 메뉴 관리', group: 'group-template' } },
+    { id: 'auth-group-management', path: '/auth-group-management', component: lazy(() => import('./template/AuthGroup')), menu: { text: '권한 그룹 관리', group: 'group-template' } },
+    { id: 'auth-group-user', path: '/auth-group-user', component: lazy(() => import('./template/AuthGroupUser')), menu: { text: '권한그룹별 사용자 관리', group: 'group-template' } },
     // Foundations 그룹
     { id: 'component-showcase', path: '/component-showcase', component: lazy(() => import('./pages/ComponentShowcasePage')), menu: { text: 'Component Showcase', group: 'group-foundations' } },
     { id: 'typography', path: '/typography', component: lazy(() => import('./pages/TypographyPage')), menu: { text: 'Typography', group: 'group-foundations' } },
     { id: 'signup-showcase', path: '/signup-showcase', component: lazy(() => import('./pages/SignupPage')), menu: { text: 'Signup Page', group: 'group-foundations' } },
+
     // Button 그룹
     { id: 'button', path: '/button', component: lazy(() => import('./pages/ButtonPage')), menu: { text: 'Button', group: 'group-button' } },
     { id: 'button-group', path: '/button-group', component: lazy(() => import('./pages/ButtonGroupPage')), menu: { text: 'ButtonGroup', group: 'group-button' } },
