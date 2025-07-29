@@ -1,6 +1,6 @@
 // D:/ds_mui_new/src/components/input/DsAutoComplete.stories.tsx
 
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react';
 // ★★★ 핵심 수정 사항 (2/2) ★★★
 // DsAutoComplete.tsx가 명명된(named) 내보내기를 사용하므로,
 // 중괄호 { }를 사용하여 정확하게 가져옵니다.
@@ -127,8 +127,8 @@ export const Grouped: Story = {
     name: 'Grouped Options',
     args: {
         options: [...top100Films].sort((a, b) => a.year - b.year),
-        groupBy: (option: FilmOptionType) => option.year.toString(),
-        getOptionLabel: (option: FilmOptionType) => option.label,
+        groupBy: (option) => (option as FilmOptionType).year.toString(),
+        getOptionLabel: (option) => (option as FilmOptionType).label,
         renderInput: (params: AutocompleteRenderInputParams) => (
             <TextField {...params} label="Grouped by year" sx={{ width: 300 }} />
         ),
