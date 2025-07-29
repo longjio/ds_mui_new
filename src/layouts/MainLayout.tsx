@@ -90,7 +90,9 @@ export default function MainLayout() {
         if (activeTab === tabToClose.path) {
             if (newTabs.length > 0) {
                 const newActiveTab = newTabs[Math.max(0, tabIndex - 1)];
-                navigate(newActiveTab.path!);
+                if (newActiveTab.path) {
+                    navigate(newActiveTab.path);
+                }
             } else {
                 navigate('/app');
             }
@@ -128,17 +130,22 @@ export default function MainLayout() {
                 tabsToKeep.unshift(homeItem);
             }
             setOpenTabs(tabsToKeep);
-            navigate(currentTab.path!);
+            if (currentTab.path) {
+                navigate(currentTab.path);
+            }
         }
         handleCloseContextMenu();
     };
 
     const handleCloseAllTabs = () => {
         const homeItem = routableItems.find(item => item.path === '/app');
-        if (homeItem) {
+        // --- ★★★ This is the corrected part ★★★ ---
+        // Check for both homeItem and its path property before navigating.
+        if (homeItem && homeItem.path) {
             setOpenTabs([homeItem]);
             navigate(homeItem.path);
         } else {
+            // Fallback if homeItem or its path is not found
             setOpenTabs([]);
             navigate('/app');
         }

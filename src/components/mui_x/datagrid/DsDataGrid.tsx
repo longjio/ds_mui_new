@@ -25,14 +25,16 @@ const DsDataGrid: React.FC<DsDataGridProps> = ({
                                                    columns,
                                                    sx,
                                                    showRowNumber = false,
-                                                   checkboxSelection = false, // ★ 1. prop 추가 및 기본값 false 설정
+                                                   checkboxSelection = false,
                                                    rowHeight = 38,
                                                    columnHeaderHeight = 40,
                                                    ...rest
                                                }) => {
 
-    let processedColumns = columns.map(col => ({
-        headerAlign: 'center' as const,
+    // --- ★★★ 핵심 수정 사항 ★★★ ---
+    // processedColumns의 타입을 GridColDef[]로 명시하여 타입 추론 문제를 해결합니다.
+    const processedColumns: GridColDef[] = columns.map(col => ({
+        headerAlign: 'center',
         ...col,
     }));
 
@@ -47,9 +49,10 @@ const DsDataGrid: React.FC<DsDataGridProps> = ({
             filterable: false,
             disableColumnMenu: true,
             renderCell: (params) => {
-                return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1;
+                return (params.api.getRowIndexRelativeToVisibleRows(params.id) ?? 0) + 1;
             },
         };
+        // 이제 rowNumberColumn과 processedColumns의 요소 타입이 호환됩니다.
         processedColumns.unshift(rowNumberColumn);
     }
 

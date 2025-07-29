@@ -33,11 +33,12 @@ const systemOptions = [
     { value: 'legacy_system', label: '레거시 시스템' },
 ];
 
-// ★ 사용여부 Select를 위한 옵션 데이터 추가
+// ★★★ 여기가 수정된 부분입니다 ★★★
+// MenuItem의 value prop은 boolean을 허용하지 않으므로, 문자열로 변경합니다.
 const usageStatusOptions = [
     { value: 'all', label: '전체' },
-    { value: true, label: '사용' },
-    { value: false, label: '미사용' },
+    { value: 'true', label: '사용' },
+    { value: 'false', label: '미사용' },
 ];
 
 export default function MenuConfigPage() {

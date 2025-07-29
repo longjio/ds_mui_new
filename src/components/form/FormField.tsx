@@ -1,17 +1,17 @@
 // D:/ds_mui_new/src/components/form/FormField.tsx
 
 import React from 'react';
-import { Stack, StackProps } from '@mui/material';
+import { Stack, StackProps, TypographyProps } from '@mui/material';
 import { BodyM } from '../typography';
 
+// BodyM 컴포넌트가 htmlFor prop을 받을 수 있도록 타입을 확장합니다.
+// BodyM이 Typography를 기반으로 한다고 가정합니다.
+interface ExtendedBodyMProps extends TypographyProps {
+    htmlFor?: string;
+}
+
 interface FormFieldProps extends Omit<StackProps, 'direction' | 'spacing'> {
-    /**
-     * 필드의 라벨 텍스트입니다.
-     */
     label: string;
-    /**
-     * 라벨과 연결될 입력 요소의 id입니다. 웹 접근성을 위해 필수입니다.
-     */
     htmlFor: string;
 }
 
@@ -26,18 +26,19 @@ export const FormField: React.FC<FormFieldProps> = ({
                                                         sx,
                                                         ...rest
                                                     }) => {
+    // --- ★★★ 핵심 수정 사항 (1/2) ★★★ ---
+    // BodyM 컴포넌트를 label로 사용하기 위해 확장된 타입으로 단언합니다.
+    const LabelComponent = BodyM as React.FC<ExtendedBodyMProps>;
+
     return (
         <Stack
             direction="row"
             alignItems="center"
             sx={{
-                // ★ 라벨과 입력 요소 사이의 간격을 12px로 설정합니다.
                 gap: '12px',
-                // 자식으로 오는 MUI Input 컴포넌트들의 높이를 34px로 조정합니다.
                 '& .MuiInputBase-root': {
                     height: '34px',
                 },
-                // 단, multiline TextField는 내용에 따라 높이가 변해야 하므로 예외 처리합니다.
                 '& .MuiInputBase-multiline': {
                     height: 'auto',
                 },
@@ -45,7 +46,9 @@ export const FormField: React.FC<FormFieldProps> = ({
             }}
             {...rest}
         >
-            <BodyM
+            {/* --- ★★★ 핵심 수정 사항 (2/2) ★★★ --- */}
+            {/* 기존 BodyM 대신 타입 단언된 LabelComponent를 사용합니다. */}
+            <LabelComponent
                 component="label"
                 htmlFor={htmlFor}
                 sx={{
@@ -54,7 +57,7 @@ export const FormField: React.FC<FormFieldProps> = ({
                 }}
             >
                 {label}
-            </BodyM>
+            </LabelComponent>
             {children}
         </Stack>
     );

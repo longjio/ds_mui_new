@@ -2,4 +2,4 @@
 
 export * from './SearchArea';
 export * from './TitleArea';
-export * from './SubTitleArea.tsx';
+export * from './SubTitleArea';

@@ -84,7 +84,12 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
         },
         MuiPaper: {
             styleOverrides: {
-                root: { boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)' },
+                root: ({ theme }: { theme: Theme }) => ({
+                    // 1. 기존 그림자 효과를 제거합니다.
+                    boxShadow: 'none',
+                    border: `1px solid ${theme.palette.divider}`,
+                    // borderRadius: 0,
+                }),
             },
         },
         MuiDataGrid: {

@@ -1,13 +1,12 @@
-// src/components/button/DsButton.tsx
+// D:/ds_mui_new/src/components/button/DsButton.tsx
 
 import * as React from 'react';
 import Button, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress'; // 로딩 상태를 위한 임포트
-import Box from '@mui/material/Box'; //
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import { SxProps, Theme } from '@mui/material/styles';
 
 // DsButtonProps 정의: MuiButtonProps를 확장하여 필요한 props를 추가하거나 수정합니다.
-// 여기서는 'variant', 'color', 'size' 등의 기본값을 설정하거나,
-// DsButton만의 고유한 prop (예: loading)을 추가할 수 있습니다.
 export interface DsButtonProps extends Omit<MuiButtonProps, 'variant' | 'color' | 'size'> {
     /**
      * 버튼의 시각적 스타일을 결정합니다.
@@ -21,9 +20,10 @@ export interface DsButtonProps extends Omit<MuiButtonProps, 'variant' | 'color' 
     color?: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
     /**
      * 버튼의 크기를 결정합니다.
+     * 'xlarge'는 커스텀 크기입니다.
      * @default 'medium'
      */
-    size?: 'small' | 'medium' | 'large';
+    size?: 'small' | 'medium' | 'large' | 'xlarge';
     /**
      * true로 설정하면 버튼 내부에 로딩 스피너를 표시하고 버튼을 비활성화합니다.
      * @default false
@@ -42,19 +42,20 @@ export interface DsButtonProps extends Omit<MuiButtonProps, 'variant' | 'color' 
 
 export function DsButton({
                              children,
-                             variant = 'contained', // 기본 variant 설정
-                             color = 'primary',     // 기본 color 설정
-                             size = 'medium',      // 기본 size 설정
-                             disabled = false,     
-                             disableElevation = true, // disableElevation을 true로 설정하여 그림자 효과를 제거
+                             variant = 'contained',
+                             color = 'primary',
+                             size = 'medium',
+                             disabled = false,
+                             disableElevation = true,
                              loading = false,
                              loadingPosition = 'start',
                              loadingIndicator,
                              onClick,
-                             ...rest // 나머지 MuiButtonProps (예: href, fullWidth, startIcon, endIcon 등)
+                             sx,
+                             ...rest
                          }: DsButtonProps) {
 
-    const actualDisabled = disabled || loading; // 로딩 중일 때는 항상 비활성화
+    const actualDisabled = disabled || loading;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (!actualDisabled && onClick) {
@@ -65,15 +66,28 @@ export function DsButton({
     const defaultLoadingIndicator = <CircularProgress color="inherit" size={20} />;
     const indicator = loadingIndicator || defaultLoadingIndicator;
 
+    const xlargeStyles: SxProps<Theme> = {
+        padding: '12px 28px',
+        fontSize: '1rem', // 16px
+    };
+
+    // 'xlarge'는 MUI Button의 유효한 prop이 아니므로, sx prop으로 스타일을 직접 제어합니다.
+    // 기본 스타일은 medium을 따르도록 설정하고, sx로 덮어씁니다.
+    const muiButtonSize = size !== 'xlarge' ? size : 'medium';
+
     return (
         <Button
             variant={variant}
             color={color}
-            size={size}
+            size={muiButtonSize}
             disabled={actualDisabled}
             disableElevation={disableElevation}
             onClick={handleClick}
-            {...rest} // startIcon, endIcon 등 나머지 props 전달
+            sx={{
+                ...(size === 'xlarge' && xlargeStyles),
+                ...sx,
+            }}
+            {...rest}
         >
             {loading && loadingPosition === 'start' && (
                 <Box component="span" sx={{ display: 'inherit', mr: children ? 1 : 0, ml: -0.5 }}>
@@ -94,6 +108,3 @@ export function DsButton({
         </Button>
     );
 }
-
-// Box 컴포넌트를 사용하기 위해 임포트 (로딩 인디케이터 위치 조정용)
-// import Box from '@mui/material/Box'; // <--- 이 줄은 삭제하거나 주석 처리합니다.

@@ -97,6 +97,14 @@ DsGrid는 size prop에 객체로 전달
 아키텍트 관점에서 프로젝트 구조나 흐름에 문제가 없는지?
 npm으로 실행하는데 앞으로도 문제 없을지?
 
+2025.07.25
+화면 템플릿 6종 제작
+
+2026.07.28
+모바일 레이아웃
+D:/ds_mui_new/src/mobile/layouts/MobileLayout.tsx
+
+
 
 IntelliJ의 강력한 캐시 초기화 기능 사용:
 •IntelliJ는 단순 재시작보다 더 강력한 캐시 무효화 및 재시작 기능이 있습니다.
