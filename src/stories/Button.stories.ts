@@ -1,6 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+// D:/ds_mui_new/src/stories/Button.stories.ts
 
-import { fn } from 'storybook/test';
+// 1. '@storybook/react-webpack5'를 '@storybook/react'로 변경합니다.
+import type { Meta, StoryObj } from '@storybook/react';
+
+// 2. 'storybook/test'를 '@storybook/test'로 변경합니다.
+import { fn } from '@storybook/test';
 
 import { Button } from './Button';
 
