@@ -5,7 +5,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
     AppBar, Box, Toolbar, Typography, Drawer, List, ListItem,
     ListItemButton, ListItemIcon, ListItemText, IconButton,
-    Divider, Chip, Card, CardContent, Grid, Avatar, Paper
+    Divider, Chip, Card, CardContent, Grid, Avatar, Paper, Collapse
 } from '@mui/material';
 
 // 아이콘 import
@@ -21,7 +21,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
-import FiberNewIcon from '@mui/icons-material/FiberNew';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -61,6 +62,13 @@ export default function MobileLayout() {
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const { user, logout } = useAuth();
 
+    // 각 섹션의 펼침/접힘 상태 관리
+    const [expandedSections, setExpandedSections] = useState({
+        frequent: true,
+        hotNew: true,
+        history: true
+    });
+
     const handleDrawerToggle = () => {
         setDrawerOpen(!isDrawerOpen);
     };
@@ -68,6 +76,13 @@ export default function MobileLayout() {
     const handleMenuClick = (path: string) => {
         navigate(path);
         setDrawerOpen(false);
+    };
+
+    const handleSectionToggle = (section: keyof typeof expandedSections) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
     };
 
     const handleLogout = async () => {
@@ -80,124 +95,144 @@ export default function MobileLayout() {
         }
     };
 
-    const MenuSection = ({ title, items, isGrid = false }: {
+    const MenuSection = ({
+                             title,
+                             items,
+                             isGrid = false,
+                             sectionKey,
+                             collapsible = false
+                         }: {
         title: string;
         items: any[];
         isGrid?: boolean;
-    }) => (
-        <Box sx={{ mb: 3 }}>
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mb: 2,
-                px: 2
-            }}>
-                <Typography
-                    variant="subtitle1"
-                    sx={{
-                        fontWeight: 600,
-                        color: 'text.primary',
-                        fontSize: '16px'
-                    }}
-                >
-                    {title}
-                </Typography>
-                <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                    <CloseIcon sx={{ fontSize: 16, transform: 'rotate(180deg)' }} />
-                </IconButton>
-            </Box>
+        sectionKey?: keyof typeof expandedSections;
+        collapsible?: boolean;
+    }) => {
+        const isExpanded = sectionKey ? expandedSections[sectionKey] : true;
 
-            {isGrid ? (
-                <Grid container spacing={2} sx={{ px: 2 }}>
-                    {items.map((item) => {
-                        const IconComponent = item.icon;
-                        return (
-                            <Grid item xs={3} key={item.path}>
-                                <Card
-                                    elevation={0}
-                                    sx={{
-                                        bgcolor: 'grey.50',
-                                        cursor: 'pointer',
-                                        '&:hover': { bgcolor: 'grey.100' },
-                                        borderRadius: 2
-                                    }}
-                                    onClick={() => handleMenuClick(item.path)}
-                                >
-                                    <CardContent sx={{
-                                        textAlign: 'center',
-                                        py: 2,
-                                        px: 1,
-                                        '&:last-child': { pb: 2 }
-                                    }}>
-                                        <Avatar sx={{
-                                            bgcolor: item.color || 'primary.main',
-                                            width: 40,
-                                            height: 40,
-                                            mx: 'auto',
-                                            mb: 1
-                                        }}>
-                                            <IconComponent sx={{ fontSize: 20 }} />
-                                        </Avatar>
-                                        <Typography
-                                            variant="caption"
+        return (
+            <Box sx={{ mb: 3 }}>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 2,
+                    px: 2
+                }}>
+                    <Typography
+                        variant="subtitle1"
+                        sx={{
+                            fontWeight: 600,
+                            color: 'text.primary',
+                            fontSize: '16px'
+                        }}
+                    >
+                        {title}
+                    </Typography>
+                    {collapsible && sectionKey && (
+                        <IconButton
+                            size="small"
+                            sx={{ color: 'text.secondary' }}
+                            onClick={() => handleSectionToggle(sectionKey)}
+                        >
+                            {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                    )}
+                </Box>
+
+                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                    {isGrid ? (
+                        <Grid container spacing={2} sx={{ px: 2 }}>
+                            {items.map((item) => {
+                                const IconComponent = item.icon;
+                                return (
+                                    <Grid item xs={3} key={item.path}>
+                                        <Card
+                                            elevation={0}
                                             sx={{
-                                                fontSize: '12px',
-                                                lineHeight: 1.2,
-                                                display: 'block'
+                                                bgcolor: 'grey.50',
+                                                cursor: 'pointer',
+                                                '&:hover': { bgcolor: 'grey.100' },
+                                                borderRadius: 2
+                                            }}
+                                            onClick={() => handleMenuClick(item.path)}
+                                        >
+                                            <CardContent sx={{
+                                                textAlign: 'center',
+                                                py: 2,
+                                                px: 1,
+                                                '&:last-child': { pb: 2 }
+                                            }}>
+                                                <Avatar sx={{
+                                                    bgcolor: item.color || 'primary.main',
+                                                    width: 40,
+                                                    height: 40,
+                                                    mx: 'auto',
+                                                    mb: 1
+                                                }}>
+                                                    <IconComponent sx={{ fontSize: 20 }} />
+                                                </Avatar>
+                                                <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        fontSize: '12px',
+                                                        lineHeight: 1.2,
+                                                        display: 'block'
+                                                    }}
+                                                >
+                                                    {item.label}
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                );
+                            })}
+                        </Grid>
+                    ) : (
+                        <List sx={{ px: 1 }}>
+                            {items.map((item) => {
+                                const IconComponent = item.icon;
+                                const isSelected = location.pathname === item.path;
+                                return (
+                                    <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                                        <ListItemButton
+                                            selected={isSelected}
+                                            onClick={() => handleMenuClick(item.path)}
+                                            sx={{
+                                                borderRadius: 2,
+                                                py: 1.5,
+                                                '&.Mui-selected': {
+                                                    bgcolor: 'primary.50',
+                                                    '&:hover': { bgcolor: 'primary.100' }
+                                                }
                                             }}
                                         >
-                                            {item.label}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        );
-                    })}
-                </Grid>
-            ) : (
-                <List sx={{ px: 1 }}>
-                    {items.map((item) => {
-                        const IconComponent = item.icon;
-                        const isSelected = location.pathname === item.path;
-                        return (
-                            <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                                <ListItemButton
-                                    selected={isSelected}
-                                    onClick={() => handleMenuClick(item.path)}
-                                    sx={{
-                                        borderRadius: 2,
-                                        py: 1.5,
-                                        '&.Mui-selected': {
-                                            bgcolor: 'primary.50',
-                                            '&:hover': { bgcolor: 'primary.100' }
-                                        }
-                                    }}
-                                >
-                                    <ListItemText
-                                        primary={item.label}
-                                        primaryTypographyProps={{
-                                            fontSize: '15px',
-                                            fontWeight: isSelected ? 600 : 400
-                                        }}
-                                    />
-                                    <IconButton
-                                        size="small"
-                                        sx={{
-                                            color: 'text.secondary',
-                                            ml: 1
-                                        }}
-                                    >
-                                        <BookmarkIcon sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
-                </List>
-            )}
-        </Box>
-    );
+                                            <ListItemText
+                                                primary={item.label}
+                                                primaryTypographyProps={{
+                                                    fontSize: '15px',
+                                                    fontWeight: isSelected ? 600 : 400
+                                                }}
+                                            />
+                                            <IconButton
+                                                size="small"
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                    ml: 1
+                                                }}
+                                            >
+                                                <BookmarkIcon sx={{ fontSize: 16 }} />
+                                            </IconButton>
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
+                    )}
+                </Collapse>
+            </Box>
+        );
+    };
 
     const drawerContent = (
         <Box sx={{ width: '100vw', bgcolor: 'background.default', height: '100%' }}>
@@ -246,13 +281,28 @@ export default function MobileLayout() {
                 <Divider sx={{ mx: 2, my: 2 }} />
 
                 {/* 자주 찾는 메뉴 */}
-                <MenuSection title="자주 찾는" items={frequentMenuItems} />
+                <MenuSection
+                    title="자주 찾는"
+                    items={frequentMenuItems}
+                    sectionKey="frequent"
+                    collapsible={true}
+                />
 
                 {/* HOT & NEW */}
-                <MenuSection title="HOT & NEW" items={hotNewItems} />
+                <MenuSection
+                    title="HOT & NEW"
+                    items={hotNewItems}
+                    sectionKey="hotNew"
+                    collapsible={true}
+                />
 
                 {/* 내역·한도 */}
-                <MenuSection title="내역·한도" items={historyItems} />
+                <MenuSection
+                    title="내역·한도"
+                    items={historyItems}
+                    sectionKey="history"
+                    collapsible={true}
+                />
 
                 <Divider sx={{ mx: 2, my: 3 }} />
 
