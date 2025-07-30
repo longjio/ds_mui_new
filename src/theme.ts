@@ -104,10 +104,21 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
     spacing: 4,
 });
 
+const customSuccessPalette = {
+    main: '#019AB2',      // 기본 색상
+    light: '#63D4E6',     // 더 밝은 색상
+    dark: '#12B886',      // 더 어두운 색상
+    contrastText: '#ffffff', // 대비되는 텍스트 색상 (흰색)
+};
+
+
+
+
 // [개선] 라이트/다크 모드 팔레트 (기존 코드와 동일)
 const lightPalette: ThemeOptions['palette'] = {
     mode: 'light',
     primary: { main: '#323F53' },
+    success: customSuccessPalette,
     background: { default: '#ffffff', paper: '#ffffff' },
     text: { primary: '#1A2027', secondary: '#3E5060' },
     divider: 'rgba(0, 0, 0, 0.12)',
@@ -117,6 +128,7 @@ const lightPalette: ThemeOptions['palette'] = {
 const darkPalette: ThemeOptions['palette'] = {
     mode: 'dark',
     primary: { main: '#A8B0BC' },
+    success: customSuccessPalette,
     background: { default: '#121212', paper: '#1e1e1e' },
     text: { primary: '#E0E3E7', secondary: '#B0B8C4' },
     divider: 'rgba(255, 255, 255, 0.12)',

@@ -142,10 +142,10 @@ export default function MobileListPage() {
                                                 label={menu.isUsed ? '사용' : '미사용'}
                                                 color={menu.isUsed ? 'success' : 'default'}
                                                 size="small"
-                                                sx={{ minWidth: '60px' }}
+                                                sx={{ minWidth: '50px' }}
                                             />
                                             <Chip
-                                                label={menu.hasPersonalInfo ? '개인정보 Y' : '개인정보 N'}
+                                                label={menu.hasPersonalInfo ? '개인정보' : '개인정보'}
                                                 disabled={!menu.hasPersonalInfo}
                                                 color={menu.hasPersonalInfo ? 'error' : 'default'}
                                                 size="small"
