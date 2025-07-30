@@ -1,13 +1,13 @@
-// D:/ds_mui_new/src/mobile/template/MobileMenu.tsx
+// D:/ds_mui_new/src/mobile/template/MobileSearch.tsx
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Stack,
     SelectChangeEvent,
 } from '@mui/material';
 
-// 1. Typography 대신 커스텀 컴포넌트 TitleL을 import 합니다.
 import { TitleS } from '../../components/typography';
 import { DsTextField } from '../../components/input/DsTextField';
 import { DsSelect, DsSelectItem } from '../../components/input/DsSelect';
@@ -27,14 +27,23 @@ const usageStatusOptions: DsSelectItem[] = [
 ];
 
 
-export default function MobileMenuPage() {
+export default function MobileSearchPage() {
+    const navigate = useNavigate();
     const [system, setSystem] = useState('');
     const [menuId, setMenuId] = useState('');
     const [menuName, setMenuName] = useState('');
     const [isUsed, setIsUsed] = useState('');
 
     const handleSearch = () => {
-        alert(`검색 조건:\n시스템: ${system}\n메뉴ID: ${menuId}\n메뉴명: ${menuName}\n사용여부: ${isUsed}`);
+        const queryParams = new URLSearchParams({
+            system,
+            menuId,
+            menuName,
+            isUsed,
+        }).toString();
+
+        // ★★★ 이동 경로를 /m/list 로 수정합니다. ★★★
+        navigate(`/m/list?${queryParams}`);
     };
 
     const handleReset = () => {
@@ -46,13 +55,10 @@ export default function MobileMenuPage() {
     };
 
     return (
-        // 1. 전체 레이아웃을 flex 컨테이너로 변경하여 하단 버튼 영역을 고정합니다.
-        //    height: '100%'를 통해 부모(MobileLayout의 main)의 전체 높이를 차지하도록 합니다.
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            {/* 2. 스크롤이 필요한 메인 콘텐츠 영역입니다. */}
             <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 6 }}>
-                <TitleS sx={{ mb: 4 }}>
-                    조회 조건
+                <TitleS component="h1" sx={{ mb: 3 }}>
+                    메뉴 검색
                 </TitleS>
 
                 <Stack spacing={3}>
@@ -93,9 +99,8 @@ export default function MobileMenuPage() {
                 </Stack>
             </Box>
 
-            {/* 3. 화면 하단에 고정될 버튼 영역입니다. */}
-            <Box sx={{ p: 3, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-                <Stack direction="row" spacing={2}>
+            <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+                <Stack direction="row" spacing={1}>
                     <DsButton variant="outlined" onClick={handleReset} fullWidth size="xlarge">초기화</DsButton>
                     <DsButton variant="contained" onClick={handleSearch} fullWidth size="xlarge">검색</DsButton>
                 </Stack>

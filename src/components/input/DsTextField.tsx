@@ -53,6 +53,13 @@ export function DsTextField({
             multiline={multiline}
             sx={{
                 ...(size === 'medium' && mediumSizeSx),
+                // ★★★ 핵심 수정 사항 ★★★
+                // required prop이 true일 경우, 라벨의 별표(*) 색상을 빨간색으로 변경합니다.
+                ...(rest.required && {
+                    '& .MuiFormLabel-asterisk': {
+                        color: 'error.main',
+                    },
+                }),
                 ...sxFromProps,
             }}
             {...rest}

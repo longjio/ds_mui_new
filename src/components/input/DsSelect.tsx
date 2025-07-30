@@ -54,7 +54,16 @@ export function DsSelect({
             error={error}
             required={required}
             variant={variant}
-            sx={formControlSx}
+            sx={{
+                // ★★★ 핵심 수정 사항 ★★★
+                // required prop이 true일 경우, 라벨의 별표(*) 색상을 빨간색으로 변경합니다.
+                ...(required && {
+                    '& .MuiFormLabel-asterisk': {
+                        color: 'error.main',
+                    },
+                }),
+                ...formControlSx,
+            }}
         >
             <InputLabel id={labelId}>{label}</InputLabel>
             <Select
