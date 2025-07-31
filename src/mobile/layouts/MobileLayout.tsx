@@ -5,56 +5,63 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
     AppBar, Box, Toolbar, Typography, Drawer, List, ListItem,
     ListItemButton, ListItemIcon, ListItemText, IconButton,
-    Divider, Chip, Card, CardContent, Grid, Avatar, Paper, Collapse
+    Divider, Chip, Card, CardContent, Grid as MuiGrid, Avatar, Paper, Collapse
 } from '@mui/material';
 
 // 아이콘 import
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import HomeIcon from '@mui/icons-material/Home';
-import DataObjectIcon from '@mui/icons-material/DataObject';
-import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
+// ★★★ 수정 1: 칩 디자인에 필요한 아이콘을 다시 import 합니다.
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+// 새로운 메뉴에 맞는 아이콘들을 import 합니다.
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import SecurityIcon from '@mui/icons-material/Security';
+
+
 import { useAuth } from '../../contexts/AuthContext';
+import { DsButton } from '../../components/button/DsButton';
 
-// 메인 메뉴 그리드 (4개씩 한 줄)
+// Grid 타입 오류를 해결하기 위해 타입 검사를 비활성화합니다.
+const Grid: any = MuiGrid;
+
+// 프로젝트의 template 페이지들을 기반으로 모바일 메뉴를 재구성합니다.
+
+// 1. 메인 메뉴 그리드 (4개씩 한 줄)
 const mainMenuItems = [
-    { path: '/m', label: '내 정보', icon: PersonIcon, color: '#4CAF50' },
-    { path: '/m/data', label: '고객센터', icon: DataObjectIcon, color: '#2196F3' },
-    { path: '/m/search', label: '이벤트', icon: SearchIcon, color: '#FF9800' },
-    { path: '/m/form', label: '설정', icon: SettingsIcon, color: '#9C27B0' }
+    { path: '/m/dashboard', label: '대시보드', icon: DashboardIcon },
+    { path: '/m/menu-config', label: '메뉴 관리', icon: ListAltIcon },
+    { path: '/m/user-management', label: '사용자 관리', icon: ManageAccountsIcon },
+    { path: '/m/auth-group', label: '권한 그룹', icon: SecurityIcon }
 ];
 
-// 자주 찾는 메뉴
-const frequentMenuItems = [
-    { path: '/m/card', label: '카드이용내역', icon: BookmarkIcon },
-    { path: '/m/mycard', label: '내카드 실적·혜택', icon: EditNoteIcon },
-    { path: '/m/economy', label: '다금경제내역', icon: DataObjectIcon }
+// ★★★ 수정 2: 칩(Chip) 디자인으로 표시될 퀵 액세스 메뉴 데이터를 추가합니다.
+const quickAccessItems = [
+    { path: '/m/menu-config', label: '메뉴 관리' },
+    { path: '/m/user-management', label: '사용자 관리' },
+    { path: '/m/auth-group', label: '권한 그룹' },
 ];
 
-// HOT & NEW 메뉴
-const hotNewItems = [
-    { path: '/m/policy', label: '정부정책지원사업', icon: WhatshotIcon },
-    { path: '/m/welfare', label: '1차 민생회복 소비쿠폰 신청하기', icon: FiberNewIcon }
+// 2. 메뉴 관리 섹션
+const menuSettingsItems = [
+    { path: '/m/menu-config', label: '메뉴 관리' },
+    { path: '/m/menu-obj-config', label: '메뉴-객체 연결' },
 ];
 
-// 내역·한도 메뉴
-const historyItems = [
-    { path: '/m/card-history', label: '카드이용내역', icon: BookmarkIcon },
-    { path: '/m/kb-pay', label: 'KB Pay 통합이용내역', icon: DataObjectIcon },
-    { path: '/m/my-card-benefit', label: '내카드 실적·혜택', icon: EditNoteIcon },
-    { path: '/m/installment', label: '적립·할인내역', icon: NotificationsIcon },
-    { path: '/m/usage-limit', label: '이용한도', icon: SettingsIcon }
+// 3. 사용자 및 권한 관리 섹션
+const userAuthItems = [
+    { path: '/m/user-management', label: '사용자 관리' },
+    { path: '/m/user-menu-auth', label: '사용자별 메뉴 권한' },
+    { path: '/m/auth-group', label: '권한 그룹 관리' },
+    { path: '/m/auth-group-user', label: '그룹별 사용자 설정' },
 ];
+
 
 export default function MobileLayout() {
     const navigate = useNavigate();
@@ -62,12 +69,13 @@ export default function MobileLayout() {
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const { user, logout } = useAuth();
 
-    // 각 섹션의 펼침/접힘 상태 관리
     const [expandedSections, setExpandedSections] = useState({
-        frequent: true,
-        hotNew: true,
-        history: true
+        menuSettings: true,
+        userAuth: true,
     });
+
+    // ★★★ 수정 3: 즐겨찾기 기본값을 현재 프로젝트에 맞게 수정합니다.
+    const [favorites, setFavorites] = useState<Set<string>>(new Set(['/m/menu-config']));
 
     const handleDrawerToggle = () => {
         setDrawerOpen(!isDrawerOpen);
@@ -83,6 +91,19 @@ export default function MobileLayout() {
             ...prev,
             [section]: !prev[section]
         }));
+    };
+
+    const handleToggleFavorite = (e: React.MouseEvent, path: string) => {
+        e.stopPropagation();
+        setFavorites(prev => {
+            const newFavorites = new Set(prev);
+            if (newFavorites.has(path)) {
+                newFavorites.delete(path);
+            } else {
+                newFavorites.add(path);
+            }
+            return newFavorites;
+        });
     };
 
     const handleLogout = async () => {
@@ -112,29 +133,22 @@ export default function MobileLayout() {
 
         return (
             <Box sx={{ mb: 3 }}>
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mb: 2,
-                    px: 2
-                }}>
-                    <Typography
-                        variant="subtitle1"
-                        sx={{
-                            fontWeight: 600,
-                            color: 'text.primary',
-                            fontSize: '16px'
-                        }}
-                    >
+                <Box
+                    onClick={() => collapsible && sectionKey && handleSectionToggle(sectionKey)}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        mb: 2,
+                        px: 2,
+                        cursor: collapsible ? 'pointer' : 'default'
+                    }}
+                >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px' }}>
                         {title}
                     </Typography>
-                    {collapsible && sectionKey && (
-                        <IconButton
-                            size="small"
-                            sx={{ color: 'text.secondary' }}
-                            onClick={() => handleSectionToggle(sectionKey)}
-                        >
+                    {collapsible && (
+                        <IconButton size="small" sx={{ color: 'text.secondary' }}>
                             {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                         </IconButton>
                     )}
@@ -142,106 +156,59 @@ export default function MobileLayout() {
 
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                     {isGrid ? (
-                        <Box sx={{ px: 2 }}>
-                            <Grid container spacing={2}>
-                                {items.map((item) => {
-                                    const IconComponent = item.icon;
-                                    return (
-                                        <Grid item xs={3} key={item.path}>
-                                            <Card
-                                                elevation={0}
-                                                sx={{
-                                                    bgcolor: 'grey.50',
-                                                    cursor: 'pointer',
-                                                    '&:hover': { bgcolor: 'grey.100' },
-                                                    borderRadius: 2,
-                                                    height: '100%',
+                        <Grid container>
+                            {items.map((item) => {
+                                const IconComponent = item.icon;
+                                return (
+                                    <Grid item xs={3} key={item.path} sx={{ p: 1, flex: 1 }}>
+                                        <Card
+                                            elevation={0}
+                                            sx={{
+                                                bgcolor: 'transparent',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                                borderRadius: 2,
+                                            }}
+                                            onClick={() => handleMenuClick(item.path)}
+                                        >
+                                            <CardContent sx={{ textAlign: 'center', p: 1, '&:last-child': { pb: 1 } }}>
+                                                <Box sx={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    mx: 'auto',
+                                                    mb: 1,
                                                     display: 'flex',
-                                                    flexDirection: 'column'
-                                                }}
-                                                onClick={() => handleMenuClick(item.path)}
-                                            >
-                                                <CardContent sx={{
-                                                    textAlign: 'center',
-                                                    py: 2,
-                                                    px: 1,
-                                                    flex: 1,
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    '&:last-child': { pb: 2 }
                                                 }}>
-                                                    <Avatar sx={{
-                                                        bgcolor: item.color || 'primary.main',
-                                                        width: 40,
-                                                        height: 40,
-                                                        mx: 'auto',
-                                                        mb: 1
-                                                    }}>
-                                                        <IconComponent sx={{ fontSize: 20 }} />
-                                                    </Avatar>
-                                                    <Typography
-                                                        variant="caption"
-                                                        sx={{
-                                                            fontSize: '12px',
-                                                            lineHeight: 1.2,
-                                                            display: 'block',
-                                                            wordBreak: 'keep-all',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis'
-                                                        }}
-                                                    >
-                                                        {item.label}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    );
-                                })}
-                            </Grid>
-                        </Box>
+                                                    <IconComponent sx={{ fontSize: 36, color: 'primary.main' }} />
+                                                </Box>
+                                                <Typography variant="caption" sx={{ fontSize: '12px', lineHeight: 1.2, display: 'block' }}>
+                                                    {item.label}
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                );
+                            })}
+                        </Grid>
                     ) : (
-                        <Box sx={{ px: 1 }}>
-                            <List disablePadding>
-                                {items.map((item) => {
-                                    const IconComponent = item.icon;
-                                    const isSelected = location.pathname === item.path;
-                                    return (
-                                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                                            <ListItemButton
-                                                selected={isSelected}
-                                                onClick={() => handleMenuClick(item.path)}
-                                                sx={{
-                                                    borderRadius: 2,
-                                                    py: 1.5,
-                                                    '&.Mui-selected': {
-                                                        bgcolor: 'primary.50',
-                                                        '&:hover': { bgcolor: 'primary.100' }
-                                                    }
-                                                }}
-                                            >
-                                                <ListItemText
-                                                    primary={item.label}
-                                                    primaryTypographyProps={{
-                                                        fontSize: '15px',
-                                                        fontWeight: isSelected ? 600 : 400
-                                                    }}
-                                                />
-                                                <IconButton
-                                                    size="small"
-                                                    sx={{
-                                                        color: 'text.secondary',
-                                                        ml: 1
-                                                    }}
-                                                >
-                                                    <BookmarkIcon sx={{ fontSize: 16 }} />
-                                                </IconButton>
-                                            </ListItemButton>
-                                        </ListItem>
-                                    );
-                                })}
-                            </List>
-                        </Box>
+                        <List sx={{ px: 1 }}>
+                            {items.map((item) => {
+                                const isSelected = location.pathname === item.path;
+                                return (
+                                    <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                                        <ListItemButton selected={isSelected} onClick={() => handleMenuClick(item.path)} sx={{ borderRadius: 2, py: 1.5, '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } } }}>
+                                            {/* ★★★ 수정 4: 역할 중복을 피하기 위해 세로 목록에서는 즐겨찾기 아이콘을 제거합니다. */}
+                                            <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '15px', fontWeight: isSelected ? 600 : 400 }} />
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
                     )}
                 </Collapse>
             </Box>
@@ -250,98 +217,78 @@ export default function MobileLayout() {
 
     const drawerContent = (
         <Box sx={{ width: '100vw', bgcolor: 'background.default', height: '100%' }}>
-            {/* 헤더 영역 */}
-            <Paper
-                elevation={1}
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    p: 2,
-                    bgcolor: 'background.paper'
-                }}
-            >
+            <Paper elevation={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, bgcolor: 'background.paper' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-                        메뉴
-                    </Typography>
-                    {user && (
-                        <Chip
-                            label={`${user.name}님`}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                                ml: 2,
-                                bgcolor: 'primary.50',
-                                borderColor: 'primary.200'
-                            }}
-                        />
-                    )}
+                    <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>메뉴</Typography>
+                    {user && (<Chip label={`${user.name}님`} variant="outlined" size="small" sx={{ ml: 2, bgcolor: 'primary.50', borderColor: 'primary.200' }} />)}
                 </Box>
-                <IconButton onClick={handleDrawerToggle} aria-label="close drawer">
-                    <CloseIcon />
-                </IconButton>
+                <IconButton onClick={handleDrawerToggle} aria-label="close drawer"><CloseIcon /></IconButton>
             </Paper>
 
-            {/* 스크롤 가능한 메뉴 영역 */}
-            <Box sx={{
-                overflowY: 'auto',
-                height: 'calc(100vh - 80px)',
-                py: 2
-            }}>
-                {/* 메인 메뉴 그리드 */}
+            <Box sx={{ overflowY: 'auto', height: 'calc(100vh - 80px)', py: 2 }}>
                 <MenuSection title="" items={mainMenuItems} isGrid={true} />
-
                 <Divider sx={{ mx: 2, my: 2 }} />
 
-                {/* 자주 찾는 메뉴 */}
+                {/* ★★★ 수정 5: 퀵 액세스 칩 메뉴를 다시 추가합니다. ★★★ */}
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px', px: 2, mb: 1 }}>
+                        퀵 액세스
+                    </Typography>
+                    <Box sx={{ overflowX: 'auto', p: '0 16px', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
+                        <Box sx={{ display: 'flex', gap: 1, py: 1 }}>
+                            {quickAccessItems.map((item) => {
+                                const isFavorite = favorites.has(item.path);
+                                return (
+                                    <DsButton
+                                        key={item.path}
+                                        variant="outlined"
+                                        color="inherit"
+                                        onClick={() => handleMenuClick(item.path)}
+                                        sx={{
+                                            flexShrink: 0,
+                                            borderRadius: '50px',
+                                            borderColor: 'divider',
+                                            p: 0,
+                                            '&:hover': { bgcolor: 'action.hover' }
+                                        }}
+                                    >
+                                        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: '6px' }}>
+                                            <Typography variant="body2" sx={{ mr: 1, color: 'text.primary' }}>{item.label}</Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => handleToggleFavorite(e, item.path)}
+                                                sx={{ p: '2px', color: isFavorite ? 'primary.main' : 'text.secondary' }}
+                                            >
+                                                {isFavorite ? <BookmarkIcon sx={{ fontSize: 18 }} /> : <BookmarkBorderIcon sx={{ fontSize: 18 }} />}
+                                            </IconButton>
+                                        </Box>
+                                    </DsButton>
+                                );
+                            })}
+                        </Box>
+                    </Box>
+                </Box>
+
                 <MenuSection
-                    title="자주 찾는"
-                    items={frequentMenuItems}
-                    sectionKey="frequent"
+                    title="메뉴 설정"
+                    items={menuSettingsItems}
+                    sectionKey="menuSettings"
                     collapsible={true}
                 />
-
-                {/* HOT & NEW */}
                 <MenuSection
-                    title="HOT & NEW"
-                    items={hotNewItems}
-                    sectionKey="hotNew"
-                    collapsible={true}
-                />
-
-                {/* 내역·한도 */}
-                <MenuSection
-                    title="내역·한도"
-                    items={historyItems}
-                    sectionKey="history"
+                    title="사용자 및 권한"
+                    items={userAuthItems}
+                    sectionKey="userAuth"
                     collapsible={true}
                 />
 
                 <Divider sx={{ mx: 2, my: 3 }} />
 
-                {/* 로그아웃 */}
                 {user && (
                     <Box sx={{ px: 2 }}>
-                        <ListItemButton
-                            onClick={handleLogout}
-                            sx={{
-                                borderRadius: 2,
-                                py: 1.5,
-                                bgcolor: 'error.50',
-                                '&:hover': { bgcolor: 'error.100' }
-                            }}
-                        >
-                            <ListItemIcon>
-                                <LogoutIcon sx={{ color: 'error.main' }} />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary="로그아웃"
-                                primaryTypographyProps={{
-                                    color: 'error.main',
-                                    fontWeight: 500
-                                }}
-                            />
+                        <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, py: 1.5, bgcolor: 'error.50', '&:hover': { bgcolor: 'error.100' } }}>
+                            <ListItemIcon><LogoutIcon sx={{ color: 'error.main' }} /></ListItemIcon>
+                            <ListItemText primary="로그아웃" primaryTypographyProps={{ color: 'error.main', fontWeight: 500 }} />
                         </ListItemButton>
                     </Box>
                 )}
@@ -351,39 +298,17 @@ export default function MobileLayout() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            {/* 상단 헤더 */}
             <AppBar position="fixed" elevation={2}>
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        모바일 앱
-                    </Typography>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerToggle}
-                    >
-                        <MenuIcon />
-                    </IconButton>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>모바일 앱</Typography>
+                    <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerToggle}><MenuIcon /></IconButton>
                 </Toolbar>
             </AppBar>
 
-            {/* Drawer */}
-            <Drawer
-                anchor="right"
-                open={isDrawerOpen}
-                onClose={handleDrawerToggle}
-                PaperProps={{
-                    sx: {
-                        width: '100%',
-                        bgcolor: 'background.default'
-                    },
-                    'aria-label': '메인 네비게이션 메뉴'
-                }}
-            >
+            <Drawer anchor="right" open={isDrawerOpen} onClose={handleDrawerToggle} PaperProps={{ sx: { width: '100%', bgcolor: 'background.default' }, 'aria-label': '메인 네비게이션 메뉴' }}>
                 {drawerContent}
             </Drawer>
 
-            {/* 메인 컨텐츠 영역 */}
             <Box component="main" sx={{ flexGrow: 1, pt: '56px', overflowY: 'auto' }}>
                 <Outlet />
             </Box>

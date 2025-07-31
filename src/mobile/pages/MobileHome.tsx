@@ -1,46 +1,105 @@
 // D:/ds_mui_new/src/mobile/pages/MobileHome.tsx
 
 import React from 'react';
-import { Paper, Typography, Box, Chip, Stack, IconButton } from '@mui/material';
+import { Paper, Typography, Box, Chip, Stack, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useAuth } from '../../contexts/AuthContext';
 
-// 카드에 사용할 아이콘
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
+// 대시보드에 사용할 아이콘 import
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import GroupIcon from '@mui/icons-material/Group';
+import SecurityIcon from '@mui/icons-material/Security';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import EditIcon from '@mui/icons-material/Edit';
+import LockResetIcon from '@mui/icons-material/LockReset';
+
+import { TitleS } from '../../components/typography';
 
 export default function MobileHomePage() {
-    // 카드 데이터 예시
-    const cards = [
+    const { user } = useAuth();
+
+    // 1. 핵심 지표 데이터 (가상)
+    const summaryCards = [
         {
-            title: '나의 지갑',
-            content: '포인트, 쿠폰, 스탬프를 확인하세요.',
-            icon: <AccountBalanceWalletIcon fontSize="large" color="primary" />,
+            title: '총 메뉴',
+            value: '128개',
+            icon: <ListAltIcon sx={{ fontSize: 32 }} />,
+            color: 'primary.main',
         },
         {
-            title: '투자 현황',
-            content: '수익률과 포트폴리오를 분석해보세요.',
-            icon: <TrendingUpIcon fontSize="large" color="success" />,
+            title: '활성 사용자',
+            value: '76명',
+            icon: <GroupIcon sx={{ fontSize: 32 }} />,
+            color: 'success.main',
         },
         {
-            title: '신용 점수',
-            content: '내 신용점수를 올리는 방법을 알아보세요.',
-            icon: <CreditScoreIcon fontSize="large" color="info" />,
+            title: '권한 그룹',
+            value: '8개',
+            icon: <SecurityIcon sx={{ fontSize: 32 }} />,
+            color: 'info.main',
+        },
+    ];
+
+    // 2. 최근 활동 데이터 (가상)
+    const recentActivities = [
+        {
+            id: 1,
+            icon: <PersonAddIcon />,
+            bgColor: 'success.light',
+            color: 'success.dark',
+            text: "'김철수' 사용자가 추가되었습니다.",
+            time: "5분 전",
+        },
+        {
+            id: 2,
+            icon: <EditIcon />,
+            bgColor: 'warning.light',
+            color: 'warning.dark',
+            text: "'대시보드' 메뉴 정보가 수정되었습니다.",
+            time: "1시간 전",
+        },
+        {
+            id: 3,
+            icon: <LockResetIcon />,
+            bgColor: 'info.light',
+            color: 'info.dark',
+            text: "'이영희' 사용자의 비밀번호가 초기화되었습니다.",
+            time: "3시간 전",
         },
     ];
 
     return (
-        // 페이지 전체 컨테이너
-        <Stack spacing={2} sx={{ p: 2 }}>
-            {/* 1. 공지사항 영역 */}
+        <Stack spacing={3} sx={{ p: 2 }}>
+            {/* 1. 환영 메시지 */}
+            <Box>
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                    {user?.name || '관리자'}님, 안녕하세요!
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    시스템 현황을 확인해보세요.
+                </Typography>
+            </Box>
+
+            {/* ★★★ 여기가 수정된 부분입니다 ★★★ */}
+            {/* 2. 공지사항 영역 */}
             <Paper
                 onClick={() => alert('공지사항 클릭')}
+                elevation={0} // 그림자 효과 제거를 명시합니다.
                 sx={{
-                    p: 1.5,
+                    // 부모 Stack의 padding(p: 2)을 무시하고 좌우로 꽉 채웁니다.
+                    mx: -2,
+                    // 사각형 배너 형태로 보이기 위해 borderRadius를 0으로 설정합니다.
+                    borderRadius: 0,
+                    // 가장 연한 회색 배경을 적용합니다. (테마에 따라 자동 변경)
+                    bgcolor: 'action.hover',
+                    // 내부 컨텐츠의 좌우 여백을 다시 설정하고, 상하 여백은 유지합니다.
+                    py: 1.5,
+                    px: 2,
+                    // 기존 스타일 유지
                     display: 'flex',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    borderRadius: 2,
+                    border: 'none', // 테두리 없음
                 }}
             >
                 <Chip label="공지" color="primary" size="small" sx={{ fontWeight: 'bold' }} />
@@ -50,48 +109,74 @@ export default function MobileHomePage() {
                 <ChevronRightIcon sx={{ color: 'text.secondary' }} />
             </Paper>
 
-            {/* 2. 카드 스와이프 영역 */}
+            {/* 3. 핵심 지표 카드 스와이프 영역 */}
             <Box sx={{ width: '100%', overflow: 'hidden' }}>
                 <Stack
                     direction="row"
                     spacing={2}
                     sx={{
                         overflowX: 'auto',
-                        // 스크롤바 숨기기
                         '&::-webkit-scrollbar': { display: 'none' },
                         scrollbarWidth: 'none',
                         py: 1,
-                        // iOS에서 부드러운 스크롤링을 위함
                         WebkitOverflowScrolling: 'touch',
-                        // 스크롤이 끝났을 때 자연스럽게 멈추도록 함
                         scrollSnapType: 'x mandatory',
                     }}
                 >
-                    {cards.map((card, index) => (
+                    {summaryCards.map((card, index) => (
                         <Paper
                             key={index}
-                            elevation={1}
+                            elevation={0}
                             sx={{
-                                // 각 카드가 스크롤 스냅의 대상이 되도록 함
                                 scrollSnapAlign: 'start',
-                                // 카드 크기 및 디자인
-                                minWidth: '85%',
-                                height: 100,
-                                borderRadius: 3,
+                                minWidth: '45%',
+                                height: 120,
+                                borderRadius: 2,
                                 p: 2,
                                 display: 'flex',
-                                alignItems: 'center',
-                                gap: 2,
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                bgcolor: 'background.paper'
                             }}
                         >
-                            {card.icon}
+                            <Avatar sx={{ bgcolor: card.color, color: 'white' }}>
+                                {card.icon}
+                            </Avatar>
                             <Box>
-                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{card.title}</Typography>
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>{card.content}</Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>{card.title}</Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{card.value}</Typography>
                             </Box>
                         </Paper>
                     ))}
                 </Stack>
+            </Box>
+
+            {/* 4. 최근 활동 리스트 */}
+            <Box>
+                <TitleS sx={{ mb: 1, fontWeight: 'bold' }}>최근 활동</TitleS>
+                <Paper sx={{ borderRadius: 2 }}>
+                    <List disablePadding>
+                        {recentActivities.map((activity, index) => (
+                            <React.Fragment key={activity.id}>
+                                <ListItem>
+                                    <ListItemAvatar>
+                                        <Avatar sx={{ bgcolor: activity.bgColor, color: activity.color }}>
+                                            {activity.icon}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={activity.text}
+                                        secondary={activity.time}
+                                        primaryTypographyProps={{ variant: 'body2' }}
+                                    />
+                                </ListItem>
+                                {index < recentActivities.length - 1 && <Divider variant="inset" component="li" />}
+                            </React.Fragment>
+                        ))}
+                    </List>
+                </Paper>
             </Box>
         </Stack>
     );
