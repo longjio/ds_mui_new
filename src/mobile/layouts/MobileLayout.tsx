@@ -142,92 +142,106 @@ export default function MobileLayout() {
 
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                     {isGrid ? (
-                        <Grid container spacing={2} sx={{ px: 2 }}>
-                            {items.map((item) => {
-                                const IconComponent = item.icon;
-                                return (
-                                    <Grid item xs={3} key={item.path}>
-                                        <Card
-                                            elevation={0}
-                                            sx={{
-                                                bgcolor: 'grey.50',
-                                                cursor: 'pointer',
-                                                '&:hover': { bgcolor: 'grey.100' },
-                                                borderRadius: 2
-                                            }}
-                                            onClick={() => handleMenuClick(item.path)}
-                                        >
-                                            <CardContent sx={{
-                                                textAlign: 'center',
-                                                py: 2,
-                                                px: 1,
-                                                '&:last-child': { pb: 2 }
-                                            }}>
-                                                <Avatar sx={{
-                                                    bgcolor: item.color || 'primary.main',
-                                                    width: 40,
-                                                    height: 40,
-                                                    mx: 'auto',
-                                                    mb: 1
-                                                }}>
-                                                    <IconComponent sx={{ fontSize: 20 }} />
-                                                </Avatar>
-                                                <Typography
-                                                    variant="caption"
-                                                    sx={{
-                                                        fontSize: '12px',
-                                                        lineHeight: 1.2,
-                                                        display: 'block'
-                                                    }}
-                                                >
-                                                    {item.label}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    ) : (
-                        <List sx={{ px: 1 }}>
-                            {items.map((item) => {
-                                const IconComponent = item.icon;
-                                const isSelected = location.pathname === item.path;
-                                return (
-                                    <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                                        <ListItemButton
-                                            selected={isSelected}
-                                            onClick={() => handleMenuClick(item.path)}
-                                            sx={{
-                                                borderRadius: 2,
-                                                py: 1.5,
-                                                '&.Mui-selected': {
-                                                    bgcolor: 'primary.50',
-                                                    '&:hover': { bgcolor: 'primary.100' }
-                                                }
-                                            }}
-                                        >
-                                            <ListItemText
-                                                primary={item.label}
-                                                primaryTypographyProps={{
-                                                    fontSize: '15px',
-                                                    fontWeight: isSelected ? 600 : 400
-                                                }}
-                                            />
-                                            <IconButton
-                                                size="small"
+                        <Box sx={{ px: 2 }}>
+                            <Grid container spacing={2}>
+                                {items.map((item) => {
+                                    const IconComponent = item.icon;
+                                    return (
+                                        <Grid item xs={3} key={item.path}>
+                                            <Card
+                                                elevation={0}
                                                 sx={{
-                                                    color: 'text.secondary',
-                                                    ml: 1
+                                                    bgcolor: 'grey.50',
+                                                    cursor: 'pointer',
+                                                    '&:hover': { bgcolor: 'grey.100' },
+                                                    borderRadius: 2,
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'column'
+                                                }}
+                                                onClick={() => handleMenuClick(item.path)}
+                                            >
+                                                <CardContent sx={{
+                                                    textAlign: 'center',
+                                                    py: 2,
+                                                    px: 1,
+                                                    flex: 1,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'center',
+                                                    '&:last-child': { pb: 2 }
+                                                }}>
+                                                    <Avatar sx={{
+                                                        bgcolor: item.color || 'primary.main',
+                                                        width: 40,
+                                                        height: 40,
+                                                        mx: 'auto',
+                                                        mb: 1
+                                                    }}>
+                                                        <IconComponent sx={{ fontSize: 20 }} />
+                                                    </Avatar>
+                                                    <Typography
+                                                        variant="caption"
+                                                        sx={{
+                                                            fontSize: '12px',
+                                                            lineHeight: 1.2,
+                                                            display: 'block',
+                                                            wordBreak: 'keep-all',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis'
+                                                        }}
+                                                    >
+                                                        {item.label}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    );
+                                })}
+                            </Grid>
+                        </Box>
+                    ) : (
+                        <Box sx={{ px: 1 }}>
+                            <List disablePadding>
+                                {items.map((item) => {
+                                    const IconComponent = item.icon;
+                                    const isSelected = location.pathname === item.path;
+                                    return (
+                                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                                            <ListItemButton
+                                                selected={isSelected}
+                                                onClick={() => handleMenuClick(item.path)}
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    py: 1.5,
+                                                    '&.Mui-selected': {
+                                                        bgcolor: 'primary.50',
+                                                        '&:hover': { bgcolor: 'primary.100' }
+                                                    }
                                                 }}
                                             >
-                                                <BookmarkIcon sx={{ fontSize: 16 }} />
-                                            </IconButton>
-                                        </ListItemButton>
-                                    </ListItem>
-                                );
-                            })}
-                        </List>
+                                                <ListItemText
+                                                    primary={item.label}
+                                                    primaryTypographyProps={{
+                                                        fontSize: '15px',
+                                                        fontWeight: isSelected ? 600 : 400
+                                                    }}
+                                                />
+                                                <IconButton
+                                                    size="small"
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        ml: 1
+                                                    }}
+                                                >
+                                                    <BookmarkIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    );
+                                })}
+                            </List>
+                        </Box>
                     )}
                 </Collapse>
             </Box>
