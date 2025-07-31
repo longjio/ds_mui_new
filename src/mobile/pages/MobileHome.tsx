@@ -6,41 +6,45 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useAuth } from '../../contexts/AuthContext';
 
 // 대시보드에 사용할 아이콘 import
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import GroupIcon from '@mui/icons-material/Group';
-import SecurityIcon from '@mui/icons-material/Security';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import EditIcon from '@mui/icons-material/Edit';
 import LockResetIcon from '@mui/icons-material/LockReset';
+// ★★★ 수정 1: 새로운 카드 디자인에 사용할 아이콘을 import 합니다.
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import PaletteIcon from '@mui/icons-material/Palette';
 
 import { TitleS } from '../../components/typography';
 
 export default function MobileHomePage() {
     const { user } = useAuth();
 
-    // 1. 핵심 지표 데이터 (가상)
-    const summaryCards = [
+    // ★★★ 수정 2: 새로운 카드 디자인에 맞는 데이터 구조로 변경합니다.
+    const featureCards = [
         {
-            title: '총 메뉴',
-            value: '128개',
-            icon: <ListAltIcon sx={{ fontSize: 32 }} />,
-            color: 'primary.main',
+            smallTitle: '간편한 메뉴 관리',
+            mainTitle: '메뉴 구조화',
+            description: '드래그 앤 드롭으로 메뉴를 설정하세요.',
+            image: <AutoAwesomeIcon sx={{ fontSize: 40, color: 'primary.dark' }} />,
+            bgColor: 'primary.50',
         },
         {
-            title: '활성 사용자',
-            value: '76명',
-            icon: <GroupIcon sx={{ fontSize: 32 }} />,
-            color: 'success.main',
+            smallTitle: '팀원과 함께',
+            mainTitle: '사용자 초대',
+            description: '새로운 팀원을 프로젝트에 초대하세요.',
+            image: <GroupAddIcon sx={{ fontSize: 40, color: 'success.dark' }} />,
+            bgColor: 'success.50',
         },
         {
-            title: '권한 그룹',
-            value: '8개',
-            icon: <SecurityIcon sx={{ fontSize: 32 }} />,
-            color: 'info.main',
+            smallTitle: '나만의 스타일',
+            mainTitle: '테마 변경',
+            description: '라이트/다크 모드로 테마를 변경하세요.',
+            image: <PaletteIcon sx={{ fontSize: 40, color: 'secondary.dark' }} />,
+            bgColor: 'secondary.50',
         },
     ];
 
-    // 2. 최근 활동 데이터 (가상)
+    // 최근 활동 데이터 (기존과 동일)
     const recentActivities = [
         {
             id: 1,
@@ -69,7 +73,7 @@ export default function MobileHomePage() {
     ];
 
     return (
-        <Stack spacing={3} sx={{ p: 2 }}>
+        <Stack spacing={3} sx={{ p: 3 }}>
             {/* 1. 환영 메시지 */}
             <Box>
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
@@ -80,36 +84,30 @@ export default function MobileHomePage() {
                 </Typography>
             </Box>
 
-            {/* ★★★ 여기가 수정된 부분입니다 ★★★ */}
             {/* 2. 공지사항 영역 */}
             <Paper
                 onClick={() => alert('공지사항 클릭')}
-                elevation={0} // 그림자 효과 제거를 명시합니다.
+                elevation={0}
                 sx={{
-                    // 부모 Stack의 padding(p: 2)을 무시하고 좌우로 꽉 채웁니다.
                     mx: -2,
-                    // 사각형 배너 형태로 보이기 위해 borderRadius를 0으로 설정합니다.
                     borderRadius: 0,
-                    // 가장 연한 회색 배경을 적용합니다. (테마에 따라 자동 변경)
                     bgcolor: 'action.hover',
-                    // 내부 컨텐츠의 좌우 여백을 다시 설정하고, 상하 여백은 유지합니다.
                     py: 1.5,
                     px: 2,
-                    // 기존 스타일 유지
                     display: 'flex',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    border: 'none', // 테두리 없음
+                    border: 'none',
                 }}
             >
-                <Chip label="공지" color="primary" size="small" sx={{ fontWeight: 'bold' }} />
+                <Chip label="공지" color="primary" size="small" sx={{ fontWeight: 'bold' }}/>
                 <Typography variant="body2" sx={{ flexGrow: 1, mx: 1.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     새로운 디자인 시스템 v1.2 업데이트 안내입니다.
                 </Typography>
                 <ChevronRightIcon sx={{ color: 'text.secondary' }} />
             </Paper>
 
-            {/* 3. 핵심 지표 카드 스와이프 영역 */}
+            {/* ★★★ 수정 3: 새로운 디자인의 기능 소개 카드 영역 ★★★ */}
             <Box sx={{ width: '100%', overflow: 'hidden' }}>
                 <Stack
                     direction="row"
@@ -123,30 +121,45 @@ export default function MobileHomePage() {
                         scrollSnapType: 'x mandatory',
                     }}
                 >
-                    {summaryCards.map((card, index) => (
+                    {featureCards.map((card, index) => (
                         <Paper
                             key={index}
                             elevation={0}
                             sx={{
                                 scrollSnapAlign: 'start',
-                                minWidth: '45%',
-                                height: 120,
-                                borderRadius: 2,
-                                p: 2,
+                                minWidth: '75%', // 카드의 너비를 넓혀 내용을 충분히 보여줍니다.
+                                height: 140,     // 카드 높이를 늘립니다.
+                                borderRadius: 3,
+                                p: 2.5,
                                 display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                bgcolor: card.bgColor, // 파스텔톤 배경색 적용
                                 border: '1px solid',
                                 borderColor: 'divider',
-                                bgcolor: 'background.paper'
                             }}
                         >
-                            <Avatar sx={{ bgcolor: card.color, color: 'white' }}>
-                                {card.icon}
-                            </Avatar>
-                            <Box>
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>{card.title}</Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{card.value}</Typography>
+                            {/* 왼쪽: 텍스트 영역 */}
+                            <Box sx={{ flexGrow: 1, pr: 1 }}>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
+                                    {card.smallTitle}
+                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', my: 0.5, lineHeight: 1.2 }}>
+                                    {card.mainTitle}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    {card.description}
+                                </Typography>
+                            </Box>
+                            {/* 오른쪽: 이미지(아이콘) 영역 */}
+                            <Box sx={{
+                                width: 64,
+                                height: 64,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                            }}>
+                                {card.image}
                             </Box>
                         </Paper>
                     ))}

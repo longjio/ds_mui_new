@@ -300,7 +300,7 @@ export default function MobileLayout() {
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
             <AppBar position="fixed" elevation={2}>
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>모바일 앱</Typography>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>SI DESIGN SYSTEM</Typography>
                     <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerToggle}><MenuIcon /></IconButton>
                 </Toolbar>
             </AppBar>

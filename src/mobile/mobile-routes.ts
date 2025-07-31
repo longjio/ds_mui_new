@@ -11,6 +11,7 @@ const MobileList = lazy(() => import('./template/MobileList'));
 const MobileForm = lazy(() => import('./template/MobileForm'));
 // ★★★ 수정 1: MobileMenu.tsx를 import 합니다.
 const MobileMenu = lazy(() => import('./template/MobileMenu'));
+const MobileUserList = lazy(() => import('./template/MobileUserList'));
 
 /**
  * 모바일 전용 라우트 설정 배열입니다.
@@ -26,6 +27,11 @@ export const mobileRoutes: AppRouteConfig[] = [
         id: 'mobile-menu-config',
         path: '/menu-config',
         component: MobileMenu,
+    },
+    {
+        id: 'mobile-user-management',
+        path: '/user-management',
+        component: MobileUserList,
     },
     {
         id: 'mobile-data',
