@@ -70,6 +70,8 @@ const templateItems: MenuItemData[] = [
     ...menuSettingsItems,
     ...userAuthItems,
     { path: '/m/store-list', label: 'List Group = Image+TextInfo' },
+    // ★★★ 요청하신 대로 '탭 검색' 메뉴를 추가합니다. ★★★
+    { path: '/m/tab-search', label: 'Tab = Tab + Search' },
 ];
 
 export default function MobileLayout() {

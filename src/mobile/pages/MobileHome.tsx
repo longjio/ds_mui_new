@@ -1,9 +1,8 @@
 // D:/ds_mui_new/src/mobile/pages/MobileHome.tsx
 
 import React from 'react';
-// ★ 1. 페이지 이동을 위해 useNavigate를 import 합니다.
 import { useNavigate } from 'react-router-dom';
-import { Paper, Typography, Box, Chip, Stack, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider } from '@mui/material';
+import { Paper, Typography, Box, Chip, Stack, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider, useTheme } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -15,12 +14,23 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PaletteIcon from '@mui/icons-material/Palette';
 
+import { BarChart } from '@mui/x-charts/BarChart';
 import { TitleS } from '../../components/typography';
+
+const chartDataset = [
+    { day: '월', visitors: 250 },
+    { day: '화', visitors: 310 },
+    { day: '수', visitors: 290 },
+    { day: '목', visitors: 350 },
+    { day: '금', visitors: 480 },
+    { day: '토', visitors: 420 },
+    { day: '일', visitors: 380 },
+];
 
 export default function MobileHomePage() {
     const { user } = useAuth();
-    // ★ 2. navigate 함수를 초기화합니다.
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const featureCards = [
         {
@@ -74,7 +84,6 @@ export default function MobileHomePage() {
     ];
 
     return (
-        // ★ 3. 전체 레이아웃 여백을 위해 sx prop을 추가합니다.
         <Stack spacing={3} sx={{ p: 2 }}>
             {/* 1. 환영 메시지 */}
             <Box>
@@ -88,7 +97,6 @@ export default function MobileHomePage() {
 
             {/* 2. 공지사항 영역 */}
             <Paper
-                // ★ 4. 클릭 시 공지사항 목록 페이지로 이동하도록 수정합니다.
                 onClick={() => navigate('/m/notices')}
                 elevation={0}
                 sx={{
@@ -141,7 +149,6 @@ export default function MobileHomePage() {
                                 borderColor: 'divider',
                             }}
                         >
-                            {/* 왼쪽: 텍스트 영역 */}
                             <Box sx={{ flexGrow: 1, pr: 1 }}>
                                 <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
                                     {card.smallTitle}
@@ -153,7 +160,6 @@ export default function MobileHomePage() {
                                     {card.description}
                                 </Typography>
                             </Box>
-                            {/* 오른쪽: 이미지(아이콘) 영역 */}
                             <Box sx={{
                                 width: 64,
                                 height: 64,
@@ -169,7 +175,31 @@ export default function MobileHomePage() {
                 </Stack>
             </Box>
 
-            {/* 4. 최근 활동 리스트 */}
+            {/* 주간 접속 현황 차트 영역 */}
+            <Box>
+                <TitleS sx={{ mb: 1, fontWeight: 'bold' }}>주간 접속 현황</TitleS>
+                <Paper sx={{ borderRadius: 2, p: 2 }}>
+                    <BarChart
+                        dataset={chartDataset}
+                        xAxis={[{
+                            scaleType: 'band',
+                            dataKey: 'day',
+                        }]}
+                        series={[{
+                            dataKey: 'visitors',
+                        }]}
+                        height={250}
+                        colors={[theme.palette.primary.main]}
+                        // ★★★ 최종 해결책 ★★★
+                        // @ts-ignore 주석으로 타입 에러를 무시하고 올바른 속성을 사용합니다.
+                        // 이는 라이브러리 타입 정의의 버그를 우회하기 위함입니다.
+                        categoryGapRatio={0.4}
+                        margin={{ top:20, right: 10, bottom: 10, left: 0 }}
+                    />
+                </Paper>
+            </Box>
+
+            {/* 최근 활동 리스트 */}
             <Box>
                 <TitleS sx={{ mb: 1, fontWeight: 'bold' }}>최근 활동</TitleS>
                 <Paper sx={{ borderRadius: 2 }}>

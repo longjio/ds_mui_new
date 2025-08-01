@@ -1,17 +1,17 @@
 // D:/ds_mui_new/src/mobile/template/MobileTabSearch.tsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
     Box,
     Stack,
     SelectChangeEvent,
     Tabs,
     Tab,
-    AppBar,
+    // ★ 1. AppBar를 import 목록에서 제거합니다.
 } from '@mui/material';
 
-import { TitleS } from '../../components/typography';
+import MobileHeader from '../components/MobileHeader';
 import { DsTextField } from '../../components/input/DsTextField';
 import { DsSelect, DsSelectItem } from '../../components/input/DsSelect';
 import { DsButton } from '../../components/button/DsButton';
@@ -193,6 +193,7 @@ const AuthGroupSearchForm = () => {
 
 // --- 메인 페이지 컴포넌트 ---
 export default function MobileTabSearchPage() {
+    const { handleDrawerToggle } = useOutletContext<{ handleDrawerToggle: () => void }>();
     const [value, setValue] = useState(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -201,10 +202,12 @@ export default function MobileTabSearchPage() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <TitleS component="h1" sx={{ p: 2, pb: 0 }}>
-                통합 검색
-            </TitleS>
-            <AppBar position="static" color="transparent" elevation={0}>
+            <MobileHeader
+                title="통합 검색"
+                onRightIconClick={handleDrawerToggle}
+            />
+            {/* ★ 2. AppBar를 Box로 변경하여 불필요한 스타일 상속을 막습니다. */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs
                     value={value}
                     onChange={handleChange}
@@ -212,13 +215,12 @@ export default function MobileTabSearchPage() {
                     textColor="primary"
                     variant="fullWidth"
                     aria-label="search tabs"
-                    sx={{ borderBottom: 1, borderColor: 'divider' }}
                 >
                     <Tab label="메뉴 검색" id="search-tab-0" aria-controls="search-tabpanel-0" />
                     <Tab label="사용자 검색" id="search-tab-1" aria-controls="search-tabpanel-1" />
                     <Tab label="권한 검색" id="search-tab-2" aria-controls="search-tabpanel-2" />
                 </Tabs>
-            </AppBar>
+            </Box>
             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                 <TabPanel value={value} index={0}>
                     <MenuSearchForm />
