@@ -1,11 +1,12 @@
 // D:/ds_mui_new/src/mobile/layouts/MobileLayout.tsx
 
 import React, { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import {
     AppBar, Box, Toolbar, Typography, Drawer, List, ListItem,
     ListItemButton, ListItemIcon, ListItemText, IconButton,
-    Divider, Chip, Card, CardContent, Grid as MuiGrid, Avatar, Paper, Collapse
+    Divider, Chip, Card, CardContent, Grid as MuiGrid, Paper, Collapse,
+    Link as MuiLink,
 } from '@mui/material';
 
 // 아이콘 import
@@ -13,55 +14,56 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-// ★★★ 수정 1: 칩 디자인에 필요한 아이콘을 다시 import 합니다.
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-// 새로운 메뉴에 맞는 아이콘들을 import 합니다.
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import SecurityIcon from '@mui/icons-material/Security';
 
-
 import { useAuth } from '../../contexts/AuthContext';
 import { DsButton } from '../../components/button/DsButton';
+import { TitleS } from '../../components/typography';
 
 // Grid 타입 오류를 해결하기 위해 타입 검사를 비활성화합니다.
 const Grid: any = MuiGrid;
 
-// 프로젝트의 template 페이지들을 기반으로 모바일 메뉴를 재구성합니다.
+// 메뉴 아이템 데이터 타입을 정의합니다.
+interface MenuItemData {
+    path: string;
+    label: string;
+    icon?: React.ElementType;
+}
 
 // 1. 메인 메뉴 그리드 (4개씩 한 줄)
-const mainMenuItems = [
+const mainMenuItems: MenuItemData[] = [
     { path: '/m/dashboard', label: '대시보드', icon: DashboardIcon },
     { path: '/m/menu-config', label: '메뉴 관리', icon: ListAltIcon },
     { path: '/m/user-management', label: '사용자 관리', icon: ManageAccountsIcon },
     { path: '/m/auth-group', label: '권한 그룹', icon: SecurityIcon }
 ];
 
-// ★★★ 수정 2: 칩(Chip) 디자인으로 표시될 퀵 액세스 메뉴 데이터를 추가합니다.
-const quickAccessItems = [
+// 2. 퀵 액세스 메뉴 데이터
+const quickAccessItems: MenuItemData[] = [
     { path: '/m/menu-config', label: '메뉴 관리' },
     { path: '/m/user-management', label: '사용자 관리' },
     { path: '/m/auth-group', label: '권한 그룹' },
 ];
 
-// 2. 메뉴 관리 섹션
-const menuSettingsItems = [
+// 3. 메뉴 관리 섹션
+const menuSettingsItems: MenuItemData[] = [
     { path: '/m/menu-config', label: '메뉴 관리' },
-    { path: '/m/menu-obj-config', label: '메뉴-객체 연결' },
+    { path: '/m/menu-obj-config', label: '메뉴 OBJ 관리' },
 ];
 
-// 3. 사용자 및 권한 관리 섹션
-const userAuthItems = [
+// 4. 사용자 및 권한 관리 섹션
+const userAuthItems: MenuItemData[] = [
     { path: '/m/user-management', label: '사용자 관리' },
     { path: '/m/user-menu-auth', label: '사용자별 메뉴 권한' },
     { path: '/m/auth-group', label: '권한 그룹 관리' },
     { path: '/m/auth-group-user', label: '그룹별 사용자 설정' },
 ];
-
 
 export default function MobileLayout() {
     const navigate = useNavigate();
@@ -69,12 +71,13 @@ export default function MobileLayout() {
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const { user, logout } = useAuth();
 
+    const isHomePage = location.pathname === '/m' || location.pathname === '/m/';
+
     const [expandedSections, setExpandedSections] = useState({
         menuSettings: true,
         userAuth: true,
     });
 
-    // ★★★ 수정 3: 즐겨찾기 기본값을 현재 프로젝트에 맞게 수정합니다.
     const [favorites, setFavorites] = useState<Set<string>>(new Set(['/m/menu-config']));
 
     const handleDrawerToggle = () => {
@@ -124,7 +127,7 @@ export default function MobileLayout() {
                              collapsible = false
                          }: {
         title: string;
-        items: any[];
+        items: MenuItemData[];
         isGrid?: boolean;
         sectionKey?: keyof typeof expandedSections;
         collapsible?: boolean;
@@ -140,7 +143,6 @@ export default function MobileLayout() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         mb: 2,
-                        px: 2,
                         cursor: collapsible ? 'pointer' : 'default'
                     }}
                 >
@@ -167,24 +169,17 @@ export default function MobileLayout() {
                                                 bgcolor: 'transparent',
                                                 border: 'none',
                                                 cursor: 'pointer',
-                                                '&:hover': {
-                                                    bgcolor: 'action.hover',
-                                                },
+                                                '&:hover': { bgcolor: 'action.hover' },
                                                 borderRadius: 2,
                                             }}
                                             onClick={() => handleMenuClick(item.path)}
                                         >
                                             <CardContent sx={{ textAlign: 'center', p: 1, '&:last-child': { pb: 1 } }}>
                                                 <Box sx={{
-                                                    width: 40,
-                                                    height: 40,
-                                                    mx: 'auto',
-                                                    mb: 1,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    width: 40, height: 40, mx: 'auto', mb: 1,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                 }}>
-                                                    <IconComponent sx={{ fontSize: 36, color: 'primary.main' }} />
+                                                    {IconComponent && <IconComponent sx={{ fontSize: 36, color: 'primary.main' }} />}
                                                 </Box>
                                                 <Typography variant="caption" sx={{ fontSize: '12px', lineHeight: 1.2, display: 'block' }}>
                                                     {item.label}
@@ -196,13 +191,12 @@ export default function MobileLayout() {
                             })}
                         </Grid>
                     ) : (
-                        <List sx={{ px: 1 }}>
+                        <List disablePadding>
                             {items.map((item) => {
                                 const isSelected = location.pathname === item.path;
                                 return (
                                     <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
                                         <ListItemButton selected={isSelected} onClick={() => handleMenuClick(item.path)} sx={{ borderRadius: 2, py: 1.5, '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } } }}>
-                                            {/* ★★★ 수정 4: 역할 중복을 피하기 위해 세로 목록에서는 즐겨찾기 아이콘을 제거합니다. */}
                                             <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '15px', fontWeight: isSelected ? 600 : 400 }} />
                                         </ListItemButton>
                                     </ListItem>
@@ -217,7 +211,19 @@ export default function MobileLayout() {
 
     const drawerContent = (
         <Box sx={{ width: '100vw', bgcolor: 'background.default', height: '100%' }}>
-            <Paper elevation={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, bgcolor: 'background.paper' }}>
+            <Paper
+                elevation={0}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    bgcolor: 'background.paper',
+                    px: '20px',
+                    py: 1,
+                    border: 0,
+                    borderColor: 'divider',
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>메뉴</Typography>
                     {user && (<Chip label={`${user.name}님`} variant="outlined" size="small" sx={{ ml: 2, bgcolor: 'primary.50', borderColor: 'primary.200' }} />)}
@@ -225,16 +231,22 @@ export default function MobileLayout() {
                 <IconButton onClick={handleDrawerToggle} aria-label="close drawer"><CloseIcon /></IconButton>
             </Paper>
 
-            <Box sx={{ overflowY: 'auto', height: 'calc(100vh - 80px)', py: 2 }}>
+            {/* --- ★★★ Drawer Body 수정 ★★★ --- */}
+            <Box sx={{
+                overflowY: 'auto',
+                height: 'calc(100vh - 72px)', // 헤더 높이를 제외한 나머지 영역
+                // 3. 콘텐츠 영역에도 좌우 패딩 20px을 적용하여 정렬을 맞춥니다.
+                px: '20px',
+                py: 2
+            }}>
                 <MenuSection title="" items={mainMenuItems} isGrid={true} />
-                <Divider sx={{ mx: 2, my: 2 }} />
+                <Divider sx={{ my: 2 }} />
 
-                {/* ★★★ 수정 5: 퀵 액세스 칩 메뉴를 다시 추가합니다. ★★★ */}
                 <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px', px: 2, mb: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px', mb: 1 }}>
                         퀵 액세스
                     </Typography>
-                    <Box sx={{ overflowX: 'auto', p: '0 16px', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
+                    <Box sx={{ overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
                         <Box sx={{ display: 'flex', gap: 1, py: 1 }}>
                             {quickAccessItems.map((item) => {
                                 const isFavorite = favorites.has(item.path);
@@ -245,11 +257,8 @@ export default function MobileLayout() {
                                         color="inherit"
                                         onClick={() => handleMenuClick(item.path)}
                                         sx={{
-                                            flexShrink: 0,
-                                            borderRadius: '50px',
-                                            borderColor: 'divider',
-                                            p: 0,
-                                            '&:hover': { bgcolor: 'action.hover' }
+                                            flexShrink: 0, borderRadius: '50px', borderColor: 'divider',
+                                            p: 0, '&:hover': { bgcolor: 'action.hover' }
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: '6px' }}>
@@ -269,23 +278,13 @@ export default function MobileLayout() {
                     </Box>
                 </Box>
 
-                <MenuSection
-                    title="메뉴 설정"
-                    items={menuSettingsItems}
-                    sectionKey="menuSettings"
-                    collapsible={true}
-                />
-                <MenuSection
-                    title="사용자 및 권한"
-                    items={userAuthItems}
-                    sectionKey="userAuth"
-                    collapsible={true}
-                />
+                <MenuSection title="메뉴 설정" items={menuSettingsItems} sectionKey="menuSettings" collapsible={true} />
+                <MenuSection title="사용자 및 권한" items={userAuthItems} sectionKey="userAuth" collapsible={true} />
 
-                <Divider sx={{ mx: 2, my: 3 }} />
+                <Divider sx={{ my: 3 }} />
 
                 {user && (
-                    <Box sx={{ px: 2 }}>
+                    <Box>
                         <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, py: 1.5, bgcolor: 'error.50', '&:hover': { bgcolor: 'error.100' } }}>
                             <ListItemIcon><LogoutIcon sx={{ color: 'error.main' }} /></ListItemIcon>
                             <ListItemText primary="로그아웃" primaryTypographyProps={{ color: 'error.main', fontWeight: 500 }} />
@@ -298,19 +297,47 @@ export default function MobileLayout() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <AppBar position="fixed" elevation={2}>
-                <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>SI DESIGN SYSTEM</Typography>
-                    <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerToggle}><MenuIcon /></IconButton>
-                </Toolbar>
-            </AppBar>
+            {isHomePage && (
+                <AppBar position="fixed" elevation={2}>
+                    <Toolbar>
+                        <MuiLink
+                            component={RouterLink}
+                            to="/m"
+                            sx={{
+                                flexGrow: 1,
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            <TitleS component="h1">
+                                SI DESIGN SYSTEM
+                            </TitleS>
+                        </MuiLink>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerToggle}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+            )}
 
-            <Drawer anchor="right" open={isDrawerOpen} onClose={handleDrawerToggle} PaperProps={{ sx: { width: '100%', bgcolor: 'background.default' }, 'aria-label': '메인 네비게이션 메뉴' }}>
+            <Drawer
+                anchor="right"
+                open={isDrawerOpen}
+                onClose={handleDrawerToggle}
+                PaperProps={{
+                    sx: { width: '100%', bgcolor: 'background.default' },
+                    'aria-label': '메인 네비게이션 메뉴'
+                }}
+            >
                 {drawerContent}
             </Drawer>
 
-            <Box component="main" sx={{ flexGrow: 1, pt: '56px', overflowY: 'auto' }}>
-                <Outlet />
+            <Box component="main" sx={{ flexGrow: 1, pt: isHomePage ? '56px' : 0, overflowY: 'auto' }}>
+                <Outlet context={{ handleDrawerToggle }} />
             </Box>
         </Box>
     );

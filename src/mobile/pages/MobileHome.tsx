@@ -1,6 +1,8 @@
 // D:/ds_mui_new/src/mobile/pages/MobileHome.tsx
 
 import React from 'react';
+// ★ 1. 페이지 이동을 위해 useNavigate를 import 합니다.
+import { useNavigate } from 'react-router-dom';
 import { Paper, Typography, Box, Chip, Stack, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,7 +11,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import EditIcon from '@mui/icons-material/Edit';
 import LockResetIcon from '@mui/icons-material/LockReset';
-// ★★★ 수정 1: 새로운 카드 디자인에 사용할 아이콘을 import 합니다.
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PaletteIcon from '@mui/icons-material/Palette';
@@ -18,8 +19,9 @@ import { TitleS } from '../../components/typography';
 
 export default function MobileHomePage() {
     const { user } = useAuth();
+    // ★ 2. navigate 함수를 초기화합니다.
+    const navigate = useNavigate();
 
-    // ★★★ 수정 2: 새로운 카드 디자인에 맞는 데이터 구조로 변경합니다.
     const featureCards = [
         {
             smallTitle: '간편한 메뉴 관리',
@@ -44,7 +46,6 @@ export default function MobileHomePage() {
         },
     ];
 
-    // 최근 활동 데이터 (기존과 동일)
     const recentActivities = [
         {
             id: 1,
@@ -73,7 +74,8 @@ export default function MobileHomePage() {
     ];
 
     return (
-        <Stack spacing={3} sx={{ p: 3 }}>
+        // ★ 3. 전체 레이아웃 여백을 위해 sx prop을 추가합니다.
+        <Stack spacing={3} sx={{ p: 2 }}>
             {/* 1. 환영 메시지 */}
             <Box>
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
@@ -86,7 +88,8 @@ export default function MobileHomePage() {
 
             {/* 2. 공지사항 영역 */}
             <Paper
-                onClick={() => alert('공지사항 클릭')}
+                // ★ 4. 클릭 시 공지사항 목록 페이지로 이동하도록 수정합니다.
+                onClick={() => navigate('/m/notices')}
                 elevation={0}
                 sx={{
                     mx: -2,
@@ -107,7 +110,7 @@ export default function MobileHomePage() {
                 <ChevronRightIcon sx={{ color: 'text.secondary' }} />
             </Paper>
 
-            {/* ★★★ 수정 3: 새로운 디자인의 기능 소개 카드 영역 ★★★ */}
+            {/* 3. 새로운 디자인의 기능 소개 카드 영역 */}
             <Box sx={{ width: '100%', overflow: 'hidden' }}>
                 <Stack
                     direction="row"
@@ -127,13 +130,13 @@ export default function MobileHomePage() {
                             elevation={0}
                             sx={{
                                 scrollSnapAlign: 'start',
-                                minWidth: '75%', // 카드의 너비를 넓혀 내용을 충분히 보여줍니다.
-                                height: 140,     // 카드 높이를 늘립니다.
+                                minWidth: '75%',
+                                height: 140,
                                 borderRadius: 3,
                                 p: 2.5,
                                 display: 'flex',
                                 alignItems: 'center',
-                                bgcolor: card.bgColor, // 파스텔톤 배경색 적용
+                                bgcolor: card.bgColor,
                                 border: '1px solid',
                                 borderColor: 'divider',
                             }}

@@ -2,19 +2,15 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 1. Dialog 관련 컴포넌트들을 import 합니다.
 import {
-    Box, Stack, SelectChangeEvent, AppBar, Toolbar, IconButton,
+    Box, Stack, SelectChangeEvent,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-
-import { TitleS } from '../../components/typography';
 import { DsTextField } from '../../components/input/DsTextField';
 import { DsSelect, DsSelectItem } from '../../components/input/DsSelect';
 import { DsButton } from '../../components/button/DsButton';
+import MobileHeader from '../components/MobileHeader'; // ★ 신규 헤더 import
 
-// MenuObj.tsx의 옵션 데이터를 모바일 폼에 맞게 가져옵니다.
 const objectSelectOptions: DsSelectItem[] = [
     { value: 'OBJ001', label: 'User' },
     { value: 'OBJ002', label: 'Product' },
@@ -33,7 +29,6 @@ const logOptions: DsSelectItem[] = [
     { value: 'N', label: '미사용' },
 ];
 
-// 폼 데이터의 상태를 관리하기 위한 인터페이스
 interface FormState {
     selectedObject: string;
     objectName: string;
@@ -55,7 +50,6 @@ export default function MobileFormPage() {
         logYn: '',
     });
 
-    // 2. Alert 상태 대신 Dialog의 열림 상태를 관리합니다.
     const [isDialogOpen, setDialogOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +62,6 @@ export default function MobileFormPage() {
         setFormState(prev => ({ ...prev, [name]: String(value) }));
     };
 
-    // 3. Dialog를 제어하는 핸들러 함수들을 추가합니다.
     const handleOpenResetDialog = () => {
         setDialogOpen(true);
     };
@@ -86,34 +79,21 @@ export default function MobileFormPage() {
             actionType: '',
             logYn: '',
         });
-        handleCloseResetDialog(); // 초기화 후 다이얼로그 닫기
+        handleCloseResetDialog();
     };
 
-    const handleClose = () => {
-        navigate(-1); // 한 단계 뒤로 이동
+    const handleSave = () => {
+        // 저장 로직 후, 이전 페이지로 이동
+        alert('저장되었습니다.');
+        navigate(-1);
     };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: 'background.default' }}>
-            <AppBar position="static" elevation={0} color="inherit" sx={{ border: 0, borderBottom: 1, borderColor: 'divider' }}>
-                <Toolbar disableGutters sx={{ flexShrink: 0, px: '20px' }}>
-                    <TitleS component="div" sx={{ flexGrow: 1 }}>
-                        메뉴 OBJ 상세
-                    </TitleS>
-                    <IconButton
-                        edge="end"
-                        color="inherit"
-                        onClick={handleClose}
-                        aria-label="close"
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
+            {/* ★ 기존 AppBar를 신규 헤더로 교체 */}
+            <MobileHeader title="메뉴 OBJ 상세" />
 
-            {/* 스크롤이 필요한 메인 콘텐츠 영역 */}
             <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 4 }}>
-                {/* 4. 기존 Alert와 Collapse 컴포넌트는 제거됩니다. */}
                 <Stack spacing={4}>
                     <DsSelect
                         id="object-select"
@@ -176,16 +156,13 @@ export default function MobileFormPage() {
                 </Stack>
             </Box>
 
-            {/* 하단 버튼 영역 */}
             <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
                 <Stack direction="row" spacing={1}>
-                    {/* 5. 초기화 버튼 클릭 시 다이얼로그를 열도록 onClick 핸들러를 변경합니다. */}
                     <DsButton variant="outlined" onClick={handleOpenResetDialog} fullWidth size="xlarge">초기화</DsButton>
-                    <DsButton variant="contained" onClick={handleClose} fullWidth size="xlarge">저장</DsButton>
+                    <DsButton variant="contained" onClick={handleSave} fullWidth size="xlarge">저장</DsButton>
                 </Stack>
             </Box>
 
-            {/* 6. 초기화 확인을 위한 AlertDialog를 추가합니다. */}
             <Dialog
                 open={isDialogOpen}
                 onClose={handleCloseResetDialog}
