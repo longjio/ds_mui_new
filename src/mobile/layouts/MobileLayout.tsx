@@ -65,6 +65,13 @@ const userAuthItems: MenuItemData[] = [
     { path: '/m/auth-group-user', label: '그룹별 사용자 설정' },
 ];
 
+// ★ 'Template' 메뉴 그룹에 대한 데이터를 정의합니다.
+const templateItems: MenuItemData[] = [
+    ...menuSettingsItems,
+    ...userAuthItems,
+    { path: '/m/store-list', label: 'List Group = Image+TextInfo' },
+];
+
 export default function MobileLayout() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -76,6 +83,7 @@ export default function MobileLayout() {
     const [expandedSections, setExpandedSections] = useState({
         menuSettings: true,
         userAuth: true,
+        template: true,
     });
 
     const [favorites, setFavorites] = useState<Set<string>>(new Set(['/m/menu-config']));
@@ -221,6 +229,7 @@ export default function MobileLayout() {
                     px: '20px',
                     py: 1,
                     border: 0,
+                    borderBottom: 1,
                     borderColor: 'divider',
                 }}
             >
@@ -231,11 +240,9 @@ export default function MobileLayout() {
                 <IconButton onClick={handleDrawerToggle} aria-label="close drawer"><CloseIcon /></IconButton>
             </Paper>
 
-            {/* --- ★★★ Drawer Body 수정 ★★★ --- */}
             <Box sx={{
                 overflowY: 'auto',
-                height: 'calc(100vh - 72px)', // 헤더 높이를 제외한 나머지 영역
-                // 3. 콘텐츠 영역에도 좌우 패딩 20px을 적용하여 정렬을 맞춥니다.
+                height: 'calc(100vh - 72px)',
                 px: '20px',
                 py: 2
             }}>
@@ -244,7 +251,7 @@ export default function MobileLayout() {
 
                 <Box sx={{ mb: 3 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px', mb: 1 }}>
-                        퀵 액세스
+                        자주 찾는 메뉴
                     </Typography>
                     <Box sx={{ overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
                         <Box sx={{ display: 'flex', gap: 1, py: 1 }}>
@@ -280,6 +287,8 @@ export default function MobileLayout() {
 
                 <MenuSection title="메뉴 설정" items={menuSettingsItems} sectionKey="menuSettings" collapsible={true} />
                 <MenuSection title="사용자 및 권한" items={userAuthItems} sectionKey="userAuth" collapsible={true} />
+
+                <MenuSection title="Template" items={templateItems} sectionKey="template" collapsible={true} />
 
                 <Divider sx={{ my: 3 }} />
 

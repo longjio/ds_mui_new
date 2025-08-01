@@ -12,7 +12,7 @@ const BodyM = ({ sx, children, ...rest }: BodyMProps) => {
     // BodyM의 기본 스타일을 정의합니다.
     const defaultSx: SxProps<Theme> = {
         fontSize: '16px',
-        fontWeight: 400,
+        fontWeight: 500,
         fontFamily: (theme) => theme.typography.fontFamily, // 테마에서 폰트 가져오기
         lineHeight: 1.5,
         color: (theme) => theme.palette.text.primary, // 테마에서 색상 가져오기

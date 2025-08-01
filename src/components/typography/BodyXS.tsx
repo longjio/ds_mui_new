@@ -1,20 +1,26 @@
+// D:/ds_mui_new/src/components/typography/BodyXS.tsx
+
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Typography, TypographyProps } from '@mui/material';
 
-// Props 타입 이름을 BodyXSProps로 변경
-type BodyXSProps = {
-    children: React.ReactNode;
-};
+/**
+ * BodyXSProps는 MUI의 TypographyProps를 확장하여
+ * sx, component, noWrap 등 Typography가 받는 모든 prop을 지원하도록 합니다.
+ */
+export interface BodyXSProps extends TypographyProps {}
 
-// 파라미터 타입도 BodyXSProps로 변경
-const BodyXS = ({ children }: BodyXSProps) => {
+const BodyXS = ({ children, sx, ...rest }: BodyXSProps) => {
     return (
         <Typography
+            {...rest} // component, noWrap 등 나머지 prop들을 전달합니다.
             sx={{
-                fontSize: '12px',
+                // 컴포넌트의 기본 스타일
+                fontSize: '12px', // BodyS보다 작은 폰트 크기
                 fontWeight: '400',
                 fontFamily: 'Pretendard',
-                lineHeight: 1.5,
+                lineHeight: 1.4, // 적절한 줄 간격
+                // 외부에서 전달된 sx를 마지막에 적용하여 덮어쓰기를 허용합니다.
+                ...sx,
             }}
         >
             {children}
