@@ -14,9 +14,8 @@ const MobileUserList = lazy(() => import('./template/MobileUserList'));
 const MobileTabSearch = lazy(() => import('./template/MobileTabSearch'));
 const MobileNoticeList = lazy(() => import('./template/MobileNoticeList'));
 const MobileMenuObj = lazy(() => import('./template/MobileMenuObj'));
-// ★ 1. 새로 만든 매장 리스트 페이지를 import 합니다.
 const MobileStoreList = lazy(() => import('./template/MobileStoreList'));
-
+const MobileBoardList = lazy(() => import('./template/MobileBoardList'));
 /**
  * 모바일 전용 라우트 설정 배열입니다.
  */
@@ -46,11 +45,15 @@ export const mobileRoutes: AppRouteConfig[] = [
         path: '/notices',
         component: MobileNoticeList,
     },
-    // ★ 2. 매장 리스트 페이지 라우트를 추가합니다.
     {
         id: 'mobile-store-list',
         path: '/store-list',
         component: MobileStoreList,
+    },
+    {
+        id: 'mobile-board-list',
+        path: '/board',
+        component: MobileBoardList,
     },
     {
         id: 'mobile-data',

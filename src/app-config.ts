@@ -45,6 +45,7 @@ export const appRoutes: AppRouteConfig[] = [
     { id: 'auth-group-management', path: '/auth-group-management', component: lazy(() => import('./template/AuthGroup')), menu: { text: '권한 그룹 관리', group: 'group-template' } },
     { id: 'auth-group-user', path: '/auth-group-user', component: lazy(() => import('./template/AuthGroupUser')), menu: { text: '권한그룹별 사용자 관리', group: 'group-template' } },
     // Foundations 그룹
+    { id: 'color-palette', path: '/color-palette', component: lazy(() => import('./pages/ColorPalettePage')), menu: { text: 'Color Palette', group: 'group-foundations' } },
     { id: 'component-showcase', path: '/component-showcase', component: lazy(() => import('./pages/ComponentShowcasePage')), menu: { text: 'Component Showcase', group: 'group-foundations' } },
     { id: 'typography', path: '/typography', component: lazy(() => import('./pages/TypographyPage')), menu: { text: 'Typography', group: 'group-foundations' } },
     { id: 'signup-showcase', path: '/signup-showcase', component: lazy(() => import('./pages/SignupPage')), menu: { text: 'Signup Page', group: 'group-foundations' } },

@@ -1,6 +1,6 @@
 // D:/ds_mui_new/src/mobile/layouts/MobileLayout.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react'; // ★ useCallback import
 import { Outlet, useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import {
     AppBar, Box, Toolbar, Typography, Drawer, List, ListItem,
@@ -36,43 +36,144 @@ interface MenuItemData {
     icon?: React.ElementType;
 }
 
-// 1. 메인 메뉴 그리드 (4개씩 한 줄)
+// 메뉴 데이터 정의 (기존과 동일)
 const mainMenuItems: MenuItemData[] = [
     { path: '/m/dashboard', label: '대시보드', icon: DashboardIcon },
     { path: '/m/menu-config', label: '메뉴 관리', icon: ListAltIcon },
     { path: '/m/user-management', label: '사용자 관리', icon: ManageAccountsIcon },
     { path: '/m/auth-group', label: '권한 그룹', icon: SecurityIcon }
 ];
-
-// 2. 퀵 액세스 메뉴 데이터
 const quickAccessItems: MenuItemData[] = [
     { path: '/m/menu-config', label: '메뉴 관리' },
     { path: '/m/user-management', label: '사용자 관리' },
     { path: '/m/auth-group', label: '권한 그룹' },
 ];
-
-// 3. 메뉴 관리 섹션
 const menuSettingsItems: MenuItemData[] = [
     { path: '/m/menu-config', label: '메뉴 관리' },
     { path: '/m/menu-obj-config', label: '메뉴 OBJ 관리' },
 ];
-
-// 4. 사용자 및 권한 관리 섹션
 const userAuthItems: MenuItemData[] = [
     { path: '/m/user-management', label: '사용자 관리' },
     { path: '/m/user-menu-auth', label: '사용자별 메뉴 권한' },
     { path: '/m/auth-group', label: '권한 그룹 관리' },
     { path: '/m/auth-group-user', label: '그룹별 사용자 설정' },
 ];
-
-// ★ 'Template' 메뉴 그룹에 대한 데이터를 정의합니다.
 const templateItems: MenuItemData[] = [
     ...menuSettingsItems,
     ...userAuthItems,
     { path: '/m/store-list', label: 'List Group = Image+TextInfo' },
-    // ★★★ 요청하신 대로 '탭 검색' 메뉴를 추가합니다. ★★★
     { path: '/m/tab-search', label: 'Tab = Tab + Search' },
+    { path: '/m/board', label: '게시판' },
 ];
+
+// 확장 가능한 섹션들의 상태 타입을 정의합니다.
+interface ExpandedSectionsState {
+    menuSettings: boolean;
+    userAuth: boolean;
+    template: boolean;
+}
+
+// MenuSection이 받을 props의 타입을 정의합니다.
+interface MenuSectionProps {
+    title: string;
+    items: MenuItemData[];
+    isGrid?: boolean;
+    sectionKey?: keyof ExpandedSectionsState;
+    collapsible?: boolean;
+    isExpanded: boolean;
+    onSectionToggle: (section: keyof ExpandedSectionsState) => void;
+    onMenuClick: (path: string) => void;
+    currentPath: string;
+}
+
+const MenuSection = ({
+                         title,
+                         items,
+                         isGrid = false,
+                         sectionKey,
+                         collapsible = false,
+                         isExpanded,
+                         onSectionToggle,
+                         onMenuClick,
+                         currentPath,
+                     }: MenuSectionProps) => {
+    return (
+        <Box sx={{ mb: 3 }}>
+            <Box
+                onClick={() => collapsible && sectionKey && onSectionToggle(sectionKey)}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 2,
+                    cursor: collapsible ? 'pointer' : 'default'
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px' }}>
+                    {title}
+                </Typography>
+                {collapsible && (
+                    <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                        {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                )}
+            </Box>
+
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                {isGrid ? (
+                    <Grid container>
+                        {items.map((item) => {
+                            const IconComponent = item.icon;
+                            return (
+                                <Grid item xs={3} key={item.path} sx={{ p: 1, flex: 1 }}>
+                                    <Card
+                                        elevation={0}
+                                        sx={{
+                                            bgcolor: 'transparent',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            '&:hover': { bgcolor: 'action.hover' },
+                                            borderRadius: 2,
+                                        }}
+                                        // ★★★ 핵심 수정 사항 (1/3) ★★★
+                                        onMouseDown={() => onMenuClick(item.path)}
+                                    >
+                                        <CardContent sx={{ textAlign: 'center', p: 1, '&:last-child': { pb: 1 } }}>
+                                            <Box sx={{
+                                                width: 40, height: 40, mx: 'auto', mb: 1,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            }}>
+                                                {IconComponent && <IconComponent sx={{ fontSize: 36, color: 'primary.main' }} />}
+                                            </Box>
+                                            <Typography variant="caption" sx={{ fontSize: '12px', lineHeight: 1.2, display: 'block' }}>
+                                                {item.label}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                ) : (
+                    <List disablePadding>
+                        {items.map((item) => {
+                            const isSelected = currentPath === item.path;
+                            return (
+                                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                                    {/* ★★★ 핵심 수정 사항 (2/3) ★★★ */}
+                                    <ListItemButton selected={isSelected} onMouseDown={() => onMenuClick(item.path)} sx={{ borderRadius: 2, py: 1.5, '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } } }}>
+                                        <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '15px', fontWeight: isSelected ? 600 : 400 }} />
+                                    </ListItemButton>
+                                </ListItem>
+                            );
+                        })}
+                    </List>
+                )}
+            </Collapse>
+        </Box>
+    );
+};
+
 
 export default function MobileLayout() {
     const navigate = useNavigate();
@@ -82,7 +183,7 @@ export default function MobileLayout() {
 
     const isHomePage = location.pathname === '/m' || location.pathname === '/m/';
 
-    const [expandedSections, setExpandedSections] = useState({
+    const [expandedSections, setExpandedSections] = useState<ExpandedSectionsState>({
         menuSettings: true,
         userAuth: true,
         template: true,
@@ -94,10 +195,11 @@ export default function MobileLayout() {
         setDrawerOpen(!isDrawerOpen);
     };
 
-    const handleMenuClick = (path: string) => {
+    // 불필요한 재정의를 막기 위해 useCallback으로 함수를 감쌉니다.
+    const handleMenuClick = useCallback((path: string) => {
         navigate(path);
         setDrawerOpen(false);
-    };
+    }, [navigate]);
 
     const handleSectionToggle = (section: keyof typeof expandedSections) => {
         setExpandedSections(prev => ({
@@ -129,96 +231,6 @@ export default function MobileLayout() {
         }
     };
 
-    const MenuSection = ({
-                             title,
-                             items,
-                             isGrid = false,
-                             sectionKey,
-                             collapsible = false
-                         }: {
-        title: string;
-        items: MenuItemData[];
-        isGrid?: boolean;
-        sectionKey?: keyof typeof expandedSections;
-        collapsible?: boolean;
-    }) => {
-        const isExpanded = sectionKey ? expandedSections[sectionKey] : true;
-
-        return (
-            <Box sx={{ mb: 3 }}>
-                <Box
-                    onClick={() => collapsible && sectionKey && handleSectionToggle(sectionKey)}
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        mb: 2,
-                        cursor: collapsible ? 'pointer' : 'default'
-                    }}
-                >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px' }}>
-                        {title}
-                    </Typography>
-                    {collapsible && (
-                        <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                            {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                        </IconButton>
-                    )}
-                </Box>
-
-                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                    {isGrid ? (
-                        <Grid container>
-                            {items.map((item) => {
-                                const IconComponent = item.icon;
-                                return (
-                                    <Grid item xs={3} key={item.path} sx={{ p: 1, flex: 1 }}>
-                                        <Card
-                                            elevation={0}
-                                            sx={{
-                                                bgcolor: 'transparent',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                '&:hover': { bgcolor: 'action.hover' },
-                                                borderRadius: 2,
-                                            }}
-                                            onClick={() => handleMenuClick(item.path)}
-                                        >
-                                            <CardContent sx={{ textAlign: 'center', p: 1, '&:last-child': { pb: 1 } }}>
-                                                <Box sx={{
-                                                    width: 40, height: 40, mx: 'auto', mb: 1,
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                }}>
-                                                    {IconComponent && <IconComponent sx={{ fontSize: 36, color: 'primary.main' }} />}
-                                                </Box>
-                                                <Typography variant="caption" sx={{ fontSize: '12px', lineHeight: 1.2, display: 'block' }}>
-                                                    {item.label}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    ) : (
-                        <List disablePadding>
-                            {items.map((item) => {
-                                const isSelected = location.pathname === item.path;
-                                return (
-                                    <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                                        <ListItemButton selected={isSelected} onClick={() => handleMenuClick(item.path)} sx={{ borderRadius: 2, py: 1.5, '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } } }}>
-                                            <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '15px', fontWeight: isSelected ? 600 : 400 }} />
-                                        </ListItemButton>
-                                    </ListItem>
-                                );
-                            })}
-                        </List>
-                    )}
-                </Collapse>
-            </Box>
-        );
-    };
-
     const drawerContent = (
         <Box sx={{ width: '100vw', bgcolor: 'background.default', height: '100%' }}>
             <Paper
@@ -248,7 +260,15 @@ export default function MobileLayout() {
                 px: '20px',
                 py: 2
             }}>
-                <MenuSection title="" items={mainMenuItems} isGrid={true} />
+                <MenuSection
+                    title=""
+                    items={mainMenuItems}
+                    isGrid={true}
+                    isExpanded={true}
+                    onSectionToggle={handleSectionToggle}
+                    onMenuClick={handleMenuClick}
+                    currentPath={location.pathname}
+                />
                 <Divider sx={{ my: 2 }} />
 
                 <Box sx={{ mb: 3 }}>
@@ -260,11 +280,12 @@ export default function MobileLayout() {
                             {quickAccessItems.map((item) => {
                                 const isFavorite = favorites.has(item.path);
                                 return (
+                                    // ★★★ 핵심 수정 사항 (3/3) ★★★
                                     <DsButton
                                         key={item.path}
                                         variant="outlined"
                                         color="inherit"
-                                        onClick={() => handleMenuClick(item.path)}
+                                        onMouseDown={() => handleMenuClick(item.path)}
                                         sx={{
                                             flexShrink: 0, borderRadius: '50px', borderColor: 'divider',
                                             p: 0, '&:hover': { bgcolor: 'action.hover' }
@@ -287,10 +308,37 @@ export default function MobileLayout() {
                     </Box>
                 </Box>
 
-                <MenuSection title="메뉴 설정" items={menuSettingsItems} sectionKey="menuSettings" collapsible={true} />
-                <MenuSection title="사용자 및 권한" items={userAuthItems} sectionKey="userAuth" collapsible={true} />
+                <MenuSection
+                    title="메뉴 설정"
+                    items={menuSettingsItems}
+                    sectionKey="menuSettings"
+                    collapsible={true}
+                    isExpanded={expandedSections.menuSettings}
+                    onSectionToggle={handleSectionToggle}
+                    onMenuClick={handleMenuClick}
+                    currentPath={location.pathname}
+                />
+                <MenuSection
+                    title="사용자 및 권한"
+                    items={userAuthItems}
+                    sectionKey="userAuth"
+                    collapsible={true}
+                    isExpanded={expandedSections.userAuth}
+                    onSectionToggle={handleSectionToggle}
+                    onMenuClick={handleMenuClick}
+                    currentPath={location.pathname}
+                />
 
-                <MenuSection title="Template" items={templateItems} sectionKey="template" collapsible={true} />
+                <MenuSection
+                    title="Template"
+                    items={templateItems}
+                    sectionKey="template"
+                    collapsible={true}
+                    isExpanded={expandedSections.template}
+                    onSectionToggle={handleSectionToggle}
+                    onMenuClick={handleMenuClick}
+                    currentPath={location.pathname}
+                />
 
                 <Divider sx={{ my: 3 }} />
 
