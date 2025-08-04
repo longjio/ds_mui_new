@@ -100,9 +100,18 @@ npm으로 실행하는데 앞으로도 문제 없을지?
 2025.07.25
 화면 템플릿 6종 제작
 
-2026.07.28
+2025.07.28
 모바일 레이아웃
 D:/ds_mui_new/src/mobile/layouts/MobileLayout.tsx
+
+2025.08.04
+MUI와 MUI X 버전 최신으로 통일해서 재설치
+"@mui/material": "^7.2.0",
+"@mui/icons-material": "^7.2.0",
+"@mui/x-charts": "^8.9.2",
+"@mui/x-data-grid": "^8.9.2",
+"@mui/x-date-pickers": "^8.9.2",
+"@mui/x-tree-view": "^8.9.2",
 
 
 
