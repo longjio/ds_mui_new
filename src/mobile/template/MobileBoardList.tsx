@@ -12,7 +12,9 @@ import {
     Divider,
     Chip,
     Stack,
+    Fab, // ★ 1. FAB 컴포넌트를 import 합니다.
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit'; // ★ 2. 글쓰기 아이콘을 import 합니다.
 import { BodyS } from '../../components/typography';
 import MobileHeader from '../components/MobileHeader';
 
@@ -20,7 +22,7 @@ import MobileHeader from '../components/MobileHeader';
 interface BoardPost {
     id: string;
     category: string;
-    title: string;
+    title:string;
     author: string;
     date: string;
     views: number;
@@ -43,13 +45,20 @@ export default function MobileBoardListPage() {
         navigate(`/m/board/${id}`);
     };
 
+    // ★ 3. 글쓰기 버튼 클릭 핸들러를 추가합니다.
+    const handleWriteClick = () => {
+        // 글쓰기 페이지로 이동합니다. (추후 생성 필요)
+        navigate(`/m/board/write`);
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <MobileHeader
                 title="게시판"
                 onRightIconClick={handleDrawerToggle}
             />
-            <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+            {/* ★ 4. FAB 버튼에 가려지지 않도록 콘텐츠 영역에 하단 패딩을 추가합니다. */}
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', pb: 10 }}>
                 <Paper elevation={0} sx={{ border: 0, borderRadius: 0 }}>
                     <List disablePadding>
                         {posts.map((post, index) => (
@@ -85,6 +94,20 @@ export default function MobileBoardListPage() {
                     </List>
                 </Paper>
             </Box>
+
+            {/* ★ 5. 글쓰기 FAB를 추가합니다. */}
+            <Fab
+                color="primary"
+                aria-label="write post"
+                onClick={handleWriteClick}
+                sx={{
+                    position: 'fixed',
+                    bottom: 24,
+                    right: 24,
+                }}
+            >
+                <EditIcon />
+            </Fab>
         </Box>
     );
 }
