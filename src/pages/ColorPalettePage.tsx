@@ -1,158 +1,107 @@
-// D:/ds_mui_new/src/pages/ColorPalettePage.tsx
-
 import React from 'react';
-import { Paper, Stack, Typography, Theme, Palette } from '@mui/material';
-import DsGrid from '../components/layout/DsGrid';
-import { TitleL, TitleS } from '../components/typography';
-import { theme } from '../theme';
+import { getTheme } from '../theme';
+import { Palette, PaletteColor } from '@mui/material/styles';
+import { Box, Paper, Typography, Stack, Divider } from '@mui/material';
+import { TitleL } from '../components/typography';
 
-// 페이지의 Light/Dark 2단 레이아웃을 위해 DsGridItem은 유지합니다.
-const DsGridItem: any = DsGrid;
-
-// 개별 색상 정보를 보여주는 헬퍼 컴포넌트
-const ColorBox = ({ colorName, hexCode, theme }: { colorName: string; hexCode: string; theme: Theme }) => {
-    // getContrastText는 전체 테마 객체에 존재하므로, 그대로 사용 가능합니다.
-    const textColor = theme.palette.getContrastText(hexCode);
-
-    const nameParts = colorName.split('.');
-    const hasTwoParts = nameParts.length === 2;
-
-    return (
+// 단일 색상을 표시하는 컴포넌트 (변경 없음)
+const ColorBox = ({ color, name }: { color?: string; name: string }) => (
+    <Box sx={{ textAlign: 'center' }}>
         <Paper
             variant="outlined"
             sx={{
-                width: 100,
-                height: 100,
-                bgcolor: hexCode,
-                color: textColor,
-                p: 1.5,
-                borderRadius: 2,
+                bgcolor: color,
+                width: 80,
+                height: 80,
+                borderRadius: 1,
+                border: '1px solid rgba(0,0,0,0.1)',
                 display: 'flex',
-                flexDirection: 'column',
+                alignItems: 'center',
                 justifyContent: 'center',
-                textAlign: 'center',
             }}
-        >
-            <Typography
-                sx={{
-                    fontWeight: 'bold',
-                    lineHeight: 1.2,
-                    fontSize: '0.8rem',
-                }}
-            >
-                {hasTwoParts ? (
-                    <>
-                        {nameParts[0]}
-                        <br />
-                        .{nameParts[1]}
-                    </>
-                ) : (
-                    colorName
-                )}
-            </Typography>
-            <Typography
-                variant="body2"
-                sx={{
-                    mt: 0.5,
-                    fontSize: '0.7rem',
-                }}
-            >
-                {hexCode}
-            </Typography>
-        </Paper>
+        />
+        <Typography variant="caption" display="block" mt={1} sx={{ wordBreak: 'break-all' }}>
+            {name}
+        </Typography>
+        <Typography variant="caption" sx={{ color: 'text.secondary', wordBreak: 'break-all' }}>
+            {color}
+        </Typography>
+    </Box>
+);
+
+// light/main/dark 구조를 가진 색상 그룹을 표시하는 컴포넌트 (변경 없음)
+const PaletteSection = ({ title, paletteColor }: { title: string; paletteColor?: PaletteColor }) => {
+    if (!paletteColor) return null;
+    return (
+        <Box>
+            <Typography variant="h6" gutterBottom>{title}</Typography>
+            <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
+                {'light' in paletteColor && <ColorBox color={paletteColor.light} name="light" />}
+                {'main' in paletteColor && <ColorBox color={paletteColor.main} name="main" />}
+                {'dark' in paletteColor && <ColorBox color={paletteColor.dark} name="dark" />}
+            </Stack>
+        </Box>
     );
 };
 
-// 특정 테마의 전체 팔레트를 표시하는 재사용 가능한 컴포넌트
-const PaletteDisplay = ({ palette, modeTitle, baseTheme }: { palette: Palette, modeTitle: string, baseTheme: Theme }) => {
-    const intentColors = ['primary', 'secondary', 'success', 'error', 'warning', 'info'];
-    const greyColors = Object.entries(palette.grey || {});
-
-    return (
-        <Stack spacing={4}>
-            <TitleS>{modeTitle}</TitleS>
-
-            {/* Main Palette */}
-            <Stack spacing={2}>
-                <Typography variant="overline" sx={{ fontSize: '10px' }}>Main Palette</Typography>
-                <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-                    {intentColors.flatMap((colorKey) => {
-                        const colorObj = palette[colorKey as keyof Palette] as any;
-                        if (!colorObj || !colorObj.main) return [];
-                        return [
-                            <ColorBox key={`${colorKey}.light`} colorName={`${colorKey}.light`} hexCode={colorObj.light} theme={baseTheme} />,
-                            <ColorBox key={`${colorKey}.main`} colorName={`${colorKey}.main`} hexCode={colorObj.main} theme={baseTheme} />,
-                            <ColorBox key={`${colorKey}.dark`} colorName={`${colorKey}.dark`} hexCode={colorObj.dark} theme={baseTheme} />
-                        ];
-                    })}
-                </Stack>
-            </Stack>
-
-            {/* UI Colors */}
-            <Stack spacing={2}>
-                <Typography variant="overline" sx={{ fontSize: '10px' }}>UI Colors</Typography>
-                <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-                    <ColorBox colorName="text.primary" hexCode={palette.text.primary} theme={baseTheme} />
-                    <ColorBox colorName="text.secondary" hexCode={palette.text.secondary} theme={baseTheme} />
-                    <ColorBox colorName="background.default" hexCode={palette.background.default} theme={baseTheme} />
-                    <ColorBox colorName="background.paper" hexCode={palette.background.paper} theme={baseTheme} />
-                    <ColorBox colorName="action.active" hexCode={palette.action.active} theme={baseTheme} />
-                    <ColorBox colorName="action.hover" hexCode={palette.action.hover} theme={baseTheme} />
-                    <ColorBox colorName="action.selected" hexCode={palette.action.selected} theme={baseTheme} />
-                    <ColorBox colorName="divider" hexCode={palette.divider} theme={baseTheme} />
-                </Stack>
-            </Stack>
-
-            {/* Grey Scale */}
-            <Stack spacing={2}>
-                <Typography variant="overline" sx={{ fontSize: '10px' }}>Grey Scale</Typography>
-                <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-                    {greyColors.map(([key, value]) => (
-                        <ColorBox key={key} colorName={`grey.${key}`} hexCode={value} theme={baseTheme} />
-                    ))}
-                </Stack>
-            </Stack>
+// [핵심 수정] colors prop의 타입을 더 명확하고 안전하게 변경합니다.
+const SimpleColorSection = ({ title, colors }: { title: string; colors: Palette['text'] | Palette['background'] }) => (
+    <Box>
+        <Typography variant="h6" gutterBottom>{title}</Typography>
+        <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
+            {Object.entries(colors).map(([name, color]) => (
+                <ColorBox key={name} color={color} name={name} />
+            ))}
         </Stack>
-    );
-}
+    </Box>
+);
 
-// 메인 컬러 팔레트 페이지
-export default function ColorPalettePage() {
-    // ★★★ 핵심 수정 사항 ★★★
-    // `theme.colorSchemes`가 실제로 존재하는지 확인하여 타입 에러와 런타임 에러를 모두 방지합니다.
-    if (!theme.colorSchemes?.light || !theme.colorSchemes?.dark) {
-        return (
-            <Stack spacing={5}>
-                <TitleL>Color Palette</TitleL>
-                <Typography color="error">
-                    테마에 colorSchemes가 정의되지 않았습니다. theme.ts 파일을 확인해주세요.
-                </Typography>
-            </Stack>
-        );
-    }
 
-    // 위에서 존재 여부를 확인했으므로, 이제 TypeScript는 이 값들이 안전하다고 인식합니다.
-    const lightPalette = {
-        ...theme.colorSchemes.light.palette,
-        grey: theme.palette.grey, // 공통 grey 스케일 추가
-    } as Palette;
+// 메인 페이지 컴포넌트
+const ColorPalettePage = () => {
+    const lightTheme = getTheme('light');
+    const darkTheme = getTheme('dark');
 
-    const darkPalette = {
-        ...theme.colorSchemes.dark.palette,
-        grey: theme.palette.grey, // 공통 grey 스케일 추가
-    } as Palette;
+    const lightPalette = lightTheme.palette;
+    const darkPalette = darkTheme.palette;
 
     return (
         <Stack spacing={5}>
             <TitleL>Color Palette</TitleL>
-            <DsGrid container spacing={{ xs: 5, lg: 4 }}>
-                <DsGridItem item xs={12} lg={6}>
-                    <PaletteDisplay palette={lightPalette} modeTitle="Light Mode" baseTheme={theme} />
-                </DsGridItem>
-                <DsGridItem item xs={12} lg={6}>
-                    <PaletteDisplay palette={darkPalette} modeTitle="Dark Mode" baseTheme={theme} />
-                </DsGridItem>
-            </DsGrid>
+
+            {/* 라이트 모드 팔레트 섹션 */}
+            <Box>
+                <Typography variant="h4" gutterBottom>Light Mode</Typography>
+                <Divider sx={{ mb: 3 }} />
+                <Stack spacing={4}>
+                    <PaletteSection title="Primary" paletteColor={lightPalette.primary} />
+                    <PaletteSection title="Secondary" paletteColor={lightPalette.secondary} />
+                    <PaletteSection title="Success" paletteColor={lightPalette.success} />
+                    <PaletteSection title="Error" paletteColor={lightPalette.error} />
+                    <PaletteSection title="Warning" paletteColor={lightPalette.warning} />
+                    <PaletteSection title="Info" paletteColor={lightPalette.info} />
+                    <SimpleColorSection title="Text" colors={lightPalette.text} />
+                    <SimpleColorSection title="Background" colors={lightPalette.background} />
+                </Stack>
+            </Box>
+
+            {/* 다크 모드 팔레트 섹션 */}
+            <Box>
+                <Typography variant="h4" gutterBottom>Dark Mode</Typography>
+                <Divider sx={{ mb: 3 }} />
+                <Stack spacing={4}>
+                    <PaletteSection title="Primary" paletteColor={darkPalette.primary} />
+                    <PaletteSection title="Secondary" paletteColor={darkPalette.secondary} />
+                    <PaletteSection title="Success" paletteColor={darkPalette.success} />
+                    <PaletteSection title="Error" paletteColor={darkPalette.error} />
+                    <PaletteSection title="Warning" paletteColor={darkPalette.warning} />
+                    <PaletteSection title="Info" paletteColor={darkPalette.info} />
+                    <SimpleColorSection title="Text" colors={darkPalette.text} />
+                    <SimpleColorSection title="Background" colors={darkPalette.background} />
+                </Stack>
+            </Box>
         </Stack>
     );
-}
+};
+
+export default ColorPalettePage;
