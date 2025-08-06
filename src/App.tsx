@@ -14,8 +14,9 @@ import { mobileRoutes } from './mobile/mobile-routes';
 const MobileLayout = lazy(() => import('./mobile/layouts/MobileLayout'));
 const MobileForm = lazy(() => import('./mobile/template/MobileForm'));
 const MobileNoticeDetail = lazy(() => import('./mobile/template/MobileNoticeDetail'));
-// ★ 1. 새로 만든 게시판 상세 페이지를 import 합니다.
 const MobileBoardDetail = lazy(() => import('./mobile/template/MobileBoardDetail'));
+// ★ 1. 새로 만든 게시판 글쓰기 페이지를 import 합니다.
+const MobileBoardWrite = lazy(() => import('./mobile/template/MobileBoardWrite'));
 
 const LoadingFallback = () => (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -41,8 +42,9 @@ function App() {
                             {/* 독립적인 모바일 페이지들 */}
                             <Route path="/m/form" element={<MobileForm />} />
                             <Route path="/m/notice/:id" element={<MobileNoticeDetail />} />
-                            {/* ★ 2. 게시판 상세 페이지를 위한 독립 라우트를 추가합니다. */}
                             <Route path="/m/board/:id" element={<MobileBoardDetail />} />
+                            {/* ★ 2. 게시판 글쓰기 페이지를 위한 독립 라우트를 추가합니다. */}
+                            <Route path="/m/board/write" element={<MobileBoardWrite />} />
 
                             {/* 나머지 모바일 페이지들은 MobileLayout을 사용합니다. */}
                             <Route path="/m/*" element={<MobileLayout />}>
