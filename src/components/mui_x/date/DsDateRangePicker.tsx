@@ -1,3 +1,5 @@
+// D:/ds_mui_new/src/components/mui_x/date/DsDateRangePicker.tsx
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
     Box,
@@ -11,6 +13,9 @@ import {
     SxProps,
     Theme,
     GlobalStyles,
+    // ★ 1. useTheme과 useMediaQuery를 import합니다.
+    useTheme,
+    useMediaQuery,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -53,7 +58,6 @@ function CustomPickerHeader(props: DatePickerToolbarProps & { value: Dayjs | nul
  * @returns 커스텀 PickersDay 컴포넌트
  */
 function createRangePickersDay(selectedStart: Dayjs | null, selectedEnd: Dayjs | null) {
-    // ✅ [수정] PickersDayProps에서 제네릭 <Dayjs>를 제거합니다.
     return function RangePickersDay(props: PickersDayProps): React.ReactElement {
         const { day, outsideCurrentMonth, ...other } = props;
 
@@ -68,7 +72,6 @@ function createRangePickersDay(selectedStart: Dayjs | null, selectedEnd: Dayjs |
         const isSelected = isStart || isEnd;
 
         const wrapperStyle: SxProps<Theme> = {
-            // isBetween일 때만 배경색을 적용하여 범위 느낌을 줍니다.
             backgroundColor: isBetween ? theme => theme.palette.action.hover : 'transparent',
             borderTopLeftRadius: isStart || isBetween ? '50%' : 0,
             borderBottomLeftRadius: isStart || isBetween ? '50%' : 0,
@@ -116,12 +119,15 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
                                                                  initialEndDate = null,
                                                                  onChange,
                                                              }) => {
+    // ★ 2. 테마와 미디어 쿼리 훅을 사용하여 모바일 화면 여부를 감지합니다.
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
     const [tempStartDate, setTempStartDate] = useState<Dayjs | null>(initialStartDate);
     const [tempEndDate, setTempEndDate] = useState<Dayjs | null>(initialEndDate);
     const [leftCalendarMonth, setLeftCalendarMonth] = useState<Dayjs>(initialStartDate || dayjs());
 
-    // Popover가 열릴 때마다 부모로부터 받은 초기값으로 임시 상태를 리셋합니다.
     useEffect(() => {
         if (anchorEl) {
             setTempStartDate(initialStartDate);
@@ -236,7 +242,8 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
                                 onMonthChange={(newMonth) => setLeftCalendarMonth(newMonth)}
                                 slots={{
                                     actionBar: () => null,
-                                    toolbar: (props) => <CustomPickerHeader {...props} value={leftCalendarMonth} />,
+                                    // ★ 3. 모바일 화면에서는 헤더(Toolbar)를 숨깁니다.
+                                    toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth} />,
                                     day: RangeDay,
                                 }}
                                 referenceDate={leftCalendarMonth}
@@ -249,7 +256,8 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
                                 referenceDate={leftCalendarMonth.add(1, 'month')}
                                 slots={{
                                     actionBar: () => null,
-                                    toolbar: (props) => <CustomPickerHeader {...props} value={leftCalendarMonth.add(1, 'month')} />,
+                                    // ★ 4. 모바일 화면에서는 헤더(Toolbar)를 숨깁니다.
+                                    toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth.add(1, 'month')} />,
                                     day: RangeDay,
                                 }}
                             />

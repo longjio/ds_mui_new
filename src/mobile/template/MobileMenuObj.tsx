@@ -48,7 +48,7 @@ export default function MobileMenuObjPage() {
     // ★ 2. 부모(MobileLayout)로부터 Drawer를 여는 함수를 받아옵니다.
     const { handleDrawerToggle } = useOutletContext<{ handleDrawerToggle: () => void }>();
 
-    const [system, setSystem] = useState('all');
+    const [system, setSystem] = useState('');
     const [isSearchAreaOpen, setSearchAreaOpen] = useState(true);
 
     const handleSearch = () => {

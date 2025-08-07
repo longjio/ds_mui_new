@@ -1,7 +1,8 @@
 // D:/ds_mui_new/src/mobile/template/MobileForm.tsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// ★ 1. useOutletContext를 import하여 헤더의 메뉴 버튼을 활성화합니다.
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
     Box, Stack, SelectChangeEvent,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
@@ -9,7 +10,7 @@ import {
 import { DsTextField } from '../../components/input/DsTextField';
 import { DsSelect, DsSelectItem } from '../../components/input/DsSelect';
 import { DsButton } from '../../components/button/DsButton';
-import MobileHeader from '../components/MobileHeader'; // ★ 신규 헤더 import
+import MobileHeader from '../components/MobileHeader';
 
 const objectSelectOptions: DsSelectItem[] = [
     { value: 'OBJ001', label: 'User' },
@@ -40,6 +41,7 @@ interface FormState {
 
 export default function MobileFormPage() {
     const navigate = useNavigate();
+    const { handleDrawerToggle } = useOutletContext<{ handleDrawerToggle: () => void }>();
 
     const [formState, setFormState] = useState<FormState>({
         selectedObject: '',
@@ -50,7 +52,9 @@ export default function MobileFormPage() {
         logYn: '',
     });
 
-    const [isDialogOpen, setDialogOpen] = useState(false);
+    // ★ 2. 다이얼로그 상태를 명확하게 분리하여 관리합니다.
+    const [isResetDialogOpen, setResetDialogOpen] = useState(false);
+    const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -63,11 +67,11 @@ export default function MobileFormPage() {
     };
 
     const handleOpenResetDialog = () => {
-        setDialogOpen(true);
+        setResetDialogOpen(true);
     };
 
     const handleCloseResetDialog = () => {
-        setDialogOpen(false);
+        setResetDialogOpen(false);
     };
 
     const handleConfirmReset = () => {
@@ -82,16 +86,27 @@ export default function MobileFormPage() {
         handleCloseResetDialog();
     };
 
+    // ★ 3. '저장' 버튼 클릭 시, alert 대신 다이얼로그를 열도록 수정합니다.
     const handleSave = () => {
-        // 저장 로직 후, 이전 페이지로 이동
-        alert('저장되었습니다.');
-        navigate(-1);
+        // 실제 저장 로직을 여기에 구현할 수 있습니다.
+        console.log('저장할 데이터:', formState);
+        setSaveDialogOpen(true);
+    };
+
+    // ★ 4. 저장 확인 다이얼로그를 닫고, 이전 페이지로 돌아가는 핸들러를 추가합니다.
+    const handleCloseSaveDialog = () => {
+        setSaveDialogOpen(false);
+        navigate(-1); // '확인' 버튼을 누르면 이전 페이지로 이동
     };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: 'background.default' }}>
-            {/* ★ 기존 AppBar를 신규 헤더로 교체 */}
-            <MobileHeader title="메뉴 OBJ 상세" />
+            <MobileHeader
+                title="메뉴 OBJ 상세"
+                leftIcon="back"
+                rightIcon="menu"
+                onRightIconClick={handleDrawerToggle}
+            />
 
             <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 4 }}>
                 <Stack spacing={4}>
@@ -163,8 +178,9 @@ export default function MobileFormPage() {
                 </Stack>
             </Box>
 
+            {/* 초기화 확인 다이얼로그 */}
             <Dialog
-                open={isDialogOpen}
+                open={isResetDialogOpen}
                 onClose={handleCloseResetDialog}
                 aria-labelledby="reset-dialog-title"
                 aria-describedby="reset-dialog-description"
@@ -180,6 +196,27 @@ export default function MobileFormPage() {
                 <DialogActions>
                     <DsButton onClick={handleCloseResetDialog} variant="text">취소</DsButton>
                     <DsButton onClick={handleConfirmReset} autoFocus>
+                        확인
+                    </DsButton>
+                </DialogActions>
+            </Dialog>
+
+            {/* ★ 5. 저장 완료 다이얼로그를 추가합니다. */}
+            <Dialog
+                open={isSaveDialogOpen}
+                onClose={handleCloseSaveDialog}
+                aria-labelledby="save-dialog-title"
+            >
+                <DialogTitle id="save-dialog-title">
+                    저장 완료
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        성공적으로 저장되었습니다.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <DsButton onClick={handleCloseSaveDialog} autoFocus>
                         확인
                     </DsButton>
                 </DialogActions>

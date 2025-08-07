@@ -1,4 +1,5 @@
-// src/components/mui_x/datagrid/DsDataGrid.tsx
+// D:/ds_mui_new/src/components/mui_x/datagrid/DsDataGrid.tsx
+
 import React from 'react';
 import {
     DataGrid as MuiDataGrid,
@@ -31,8 +32,6 @@ const DsDataGrid: React.FC<DsDataGridProps> = ({
                                                    ...rest
                                                }) => {
 
-    // --- ★★★ 핵심 수정 사항 ★★★ ---
-    // processedColumns의 타입을 GridColDef[]로 명시하여 타입 추론 문제를 해결합니다.
     const processedColumns: GridColDef[] = columns.map(col => ({
         headerAlign: 'center',
         ...col,
@@ -52,7 +51,6 @@ const DsDataGrid: React.FC<DsDataGridProps> = ({
                 return (params.api.getRowIndexRelativeToVisibleRows(params.id) ?? 0) + 1;
             },
         };
-        // 이제 rowNumberColumn과 processedColumns의 요소 타입이 호환됩니다.
         processedColumns.unshift(rowNumberColumn);
     }
 
@@ -70,11 +68,24 @@ const DsDataGrid: React.FC<DsDataGridProps> = ({
             pageSizeOptions={[5, 10]}
             checkboxSelection={checkboxSelection}
             {...rest}
-            sx={{
-                width: '100%',
-                borderRadius: 0,
-                ...sx,
-            }}
+            // ★★★ 핵심 수정 사항 ★★★
+            // sx prop을 배열 형태로 변경하여 기본 스타일과 외부 스타일을 안전하게 병합합니다.
+            sx={[
+                // 기본 스타일
+                (theme) => ({
+                    width: '100%',
+                    borderRadius: 0,
+                    // 모바일 화면(sm 이하)에서 컬럼 구분선을 숨깁니다.
+                    [theme.breakpoints.down('sm')]: {
+                        '& .MuiDataGrid-columnSeparator': {
+                            display: 'none',
+                        },
+                    },
+                }),
+                // 외부에서 전달된 sx prop이 존재할 경우에만 배열에 추가합니다.
+                // sx가 배열일 수도 있으므로, Array.isArray로 확인하여 안전하게 펼칩니다.
+                ...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),
+            ]}
         />
     );
 };

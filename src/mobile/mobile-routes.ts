@@ -16,14 +16,20 @@ const MobileNoticeList = lazy(() => import('./template/MobileNoticeList'));
 const MobileMenuObj = lazy(() => import('./template/MobileMenuObj'));
 const MobileStoreList = lazy(() => import('./template/MobileStoreList'));
 const MobileBoardList = lazy(() => import('./template/MobileBoardList'));
-/**
- * 모바일 전용 라우트 설정 배열입니다.
- */
+const MobileReport = lazy(() => import('./template/MobileReport'));
+const MobileVideoList = lazy(() => import('./template/MobileVideoList'));
+
+
 export const mobileRoutes: AppRouteConfig[] = [
     {
         id: 'mobile-home',
         path: '/',
         component: MobileHome,
+    },
+    {
+        id: 'mobile-report',
+        path: '/report',
+        component: MobileReport,
     },
     {
         id: 'mobile-menu-config',
@@ -54,6 +60,12 @@ export const mobileRoutes: AppRouteConfig[] = [
         id: 'mobile-board-list',
         path: '/board',
         component: MobileBoardList,
+    },
+    // ★ 2. 비디오 목록 페이지 라우트를 추가합니다.
+    {
+        id: 'mobile-video-list',
+        path: '/video-list',
+        component: MobileVideoList,
     },
     {
         id: 'mobile-data',

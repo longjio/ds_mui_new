@@ -14,6 +14,8 @@ interface MobileHeaderProps {
     leftIcon?: 'back' | 'home' | 'none';
     /** 오른쪽 아이콘 타입을 지정합니다. (기본값: 'menu') */
     rightIcon?: 'home' | 'menu' | 'none';
+    /** 왼쪽 아이콘 클릭 이벤트를 처리합니다. 'back' 아이콘일 때 기본 동작(navigate(-1))을 덮어씁니다. */
+    onLeftIconClick?: () => void;
     /** 오른쪽 아이콘 클릭 이벤트를 처리합니다. (rightIcon이 'menu'일 때 필수) */
     onRightIconClick?: () => void;
 }
@@ -22,11 +24,13 @@ export default function MobileHeader({
                                          title,
                                          leftIcon = 'home',
                                          rightIcon = 'menu',
+                                         onLeftIconClick, // ★ 1. onLeftIconClick prop 추가
                                          onRightIconClick,
                                      }: MobileHeaderProps) {
     const navigate = useNavigate();
 
-    const handleBack = () => navigate(-1);
+    // ★ 2. onLeftIconClick이 있으면 해당 함수를, 없으면 기본 뒤로가기 동작을 사용합니다.
+    const handleBack = onLeftIconClick ? onLeftIconClick : () => navigate(-1);
     const handleHome = () => navigate('/m');
 
     // 왼쪽 액션 아이콘 렌더링

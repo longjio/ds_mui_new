@@ -1,6 +1,6 @@
 // D:/ds_mui_new/src/mobile/template/MobileBoardWrite.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // ★ 1. useRef를 import 합니다.
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -11,7 +11,15 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    List,          // ★ 2. 파일 목록을 위한 컴포넌트들을 import 합니다.
+    ListItem,
+    ListItemText,
+    IconButton,
+    Typography,
+    Divider,
 } from '@mui/material';
+import AttachFileIcon from '@mui/icons-material/AttachFile'; // ★ 3. 아이콘을 import 합니다.
+import CloseIcon from '@mui/icons-material/Close';
 import { DsTextField } from '../../components/input/DsTextField';
 import { DsSelect, DsSelectItem } from '../../components/input/DsSelect';
 import { DsButton } from '../../components/button/DsButton';
@@ -26,25 +34,38 @@ const categoryOptions: DsSelectItem[] = [
 
 export default function MobileBoardWritePage() {
     const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement>(null); // ★ 4. file input에 접근하기 위한 ref를 생성합니다.
 
-    // ★★★ 핵심 수정 사항 ★★★
-    // 초기값을 '자유'가 아닌 빈 문자열('')로 설정하여
-    // 동적 라벨이 정상적으로 작동하도록 합니다.
     const [category, setCategory] = useState('');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [files, setFiles] = useState<File[]>([]); // ★ 5. 첨부된 파일 목록을 관리할 state를 추가합니다.
     const [isDialogOpen, setDialogOpen] = useState(false);
+
+    // ★ 6. 파일 선택 시 실행될 핸들러를 추가합니다.
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            // 새로 선택된 파일들을 기존 파일 목록에 추가합니다.
+            setFiles(prevFiles => [...prevFiles, ...Array.from(event.target.files!)]);
+        }
+    };
+
+    // ★ 7. 파일 목록에서 특정 파일을 제거하는 핸들러를 추가합니다.
+    const handleRemoveFile = (fileToRemove: File) => {
+        setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
+    };
 
     const handleSave = () => {
         // 실제 저장 로직을 여기에 구현합니다.
-        console.log({ category, title, content });
+        // FormData를 사용하여 파일과 다른 데이터를 함께 서버로 보낼 수 있습니다.
+        console.log({ category, title, content, files });
         alert('게시글이 저장되었습니다.');
         navigate(-1); // 목록 페이지로 돌아가기
     };
 
     const handleCancel = () => {
-        // 내용이 있으면 확인 다이얼로그를 띄웁니다.
-        if (title || content) {
+        // ★ 내용 또는 첨부파일이 있으면 확인 다이얼로그를 띄웁니다.
+        if (title || content || files.length > 0) {
             setDialogOpen(true);
         } else {
             navigate(-1); // 내용이 없으면 바로 돌아가기
@@ -58,7 +79,7 @@ export default function MobileBoardWritePage() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: 'background.default' }}>
-            <MobileHeader title="글쓰기" leftIcon="none" />
+            <MobileHeader title="글쓰기" leftIcon="back" rightIcon="none" />
 
             {/* 콘텐츠 영역 */}
             <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 4 }}>
@@ -70,6 +91,7 @@ export default function MobileBoardWritePage() {
                         onChange={(e: SelectChangeEvent<string | number>) => setCategory(e.target.value as string)}
                         items={categoryOptions}
                         fullWidth
+                        required
                     />
                     <DsTextField
                         id="title-input"
@@ -91,6 +113,50 @@ export default function MobileBoardWritePage() {
                         multiline
                         rows={10}
                     />
+
+                    {/* ★ 8. 파일 첨부 UI 추가 */}
+                    <Stack spacing={1}>
+                        <input
+                            type="file"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }} // input 필드는 숨깁니다.
+                        />
+                        <DsButton
+                            variant="outlined"
+                            color="inherit"
+                            startIcon={<AttachFileIcon />}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            파일 첨부
+                        </DsButton>
+
+                        {files.length > 0 && (
+                            <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, mt: 1 }}>
+                                <List dense>
+                                    {files.map((file, index) => (
+                                        <React.Fragment key={index}>
+                                            <ListItem
+                                                secondaryAction={
+                                                    <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveFile(file)}>
+                                                        <CloseIcon fontSize="small" />
+                                                    </IconButton>
+                                                }
+                                            >
+                                                <ListItemText
+                                                    primary={file.name}
+                                                    secondary={`${(file.size / 1024).toFixed(2)} KB`}
+                                                    primaryTypographyProps={{ variant: 'body2', noWrap: true }}
+                                                />
+                                            </ListItem>
+                                            {index < files.length - 1 && <Divider />}
+                                        </React.Fragment>
+                                    ))}
+                                </List>
+                            </Box>
+                        )}
+                    </Stack>
                 </Stack>
             </Box>
 

@@ -73,7 +73,6 @@
     "gh-pages": "^6.3.0",
     "patch-package": "^8.0.0",
     "prop-types": "^15.8.1",
-    "storybook": "8.2.4",
-    "webpack": "^5.100.2"
+    "storybook": "8.2.4"
   }
 }

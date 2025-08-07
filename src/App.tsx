@@ -12,11 +12,13 @@ import SignupPage from './pages/SignupPage';
 
 import { mobileRoutes } from './mobile/mobile-routes';
 const MobileLayout = lazy(() => import('./mobile/layouts/MobileLayout'));
-const MobileForm = lazy(() => import('./mobile/template/MobileForm'));
 const MobileNoticeDetail = lazy(() => import('./mobile/template/MobileNoticeDetail'));
 const MobileBoardDetail = lazy(() => import('./mobile/template/MobileBoardDetail'));
-// ★ 1. 새로 만든 게시판 글쓰기 페이지를 import 합니다.
 const MobileBoardWrite = lazy(() => import('./mobile/template/MobileBoardWrite'));
+const MobileVideoDetail = lazy(() => import('./mobile/template/MobileVideoDetail'));
+const MobileUserDetail = lazy(() => import('./mobile/template/MobileUserDetail'));
+// ★ 1. 새로 만든 사용자 수정 페이지를 lazy import 합니다.
+const MobileUserEdit = lazy(() => import('./mobile/template/MobileUserEdit'));
 
 const LoadingFallback = () => (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -39,30 +41,33 @@ function App() {
                             {/* 데스크톱 레이아웃 */}
                             <Route path="/app/*" element={<MainLayout />} />
 
-                            {/* 독립적인 모바일 페이지들 */}
-                            <Route path="/m/form" element={<MobileForm />} />
+                            {/* 독립적인 모바일 페이지들 (MobileLayout 외부에 위치) */}
                             <Route path="/m/notice/:id" element={<MobileNoticeDetail />} />
-                            <Route path="/m/board/:id" element={<MobileBoardDetail />} />
-                            {/* ★ 2. 게시판 글쓰기 페이지를 위한 독립 라우트를 추가합니다. */}
                             <Route path="/m/board/write" element={<MobileBoardWrite />} />
+                            <Route path="/m/board/:id" element={<MobileBoardDetail />} />
+                            <Route path="/m/video/:id" element={<MobileVideoDetail />} />
+                            {/* ★ 2. 사용자 수정 및 상세 페이지 라우트를 추가합니다. */}
+                            {/*    더 구체적인 경로가 먼저 오도록 배치해야 합니다. */}
+                            <Route path="/m/user-management/:id/edit" element={<MobileUserEdit />} />
+                            <Route path="/m/user-management/:id" element={<MobileUserDetail />} />
 
                             {/* 나머지 모바일 페이지들은 MobileLayout을 사용합니다. */}
                             <Route path="/m/*" element={<MobileLayout />}>
-                                {mobileRoutes
-                                    .filter(route => route.id !== 'mobile-form')
-                                    .map((route) => {
-                                        const PageComponent = route.component;
-                                        if (route.path === '/') {
-                                            return <Route key={route.id} index element={<PageComponent />} />;
-                                        }
-                                        return (
-                                            <Route
-                                                key={route.id}
-                                                path={route.path.substring(1)}
-                                                element={<PageComponent />}
-                                            />
-                                        );
-                                    })}
+                                {mobileRoutes.map((route) => {
+                                    const PageComponent = route.component;
+                                    // path가 '/'인 경우(모바일 홈)는 index route로 처리합니다.
+                                    if (route.path === '/') {
+                                        return <Route key={route.id} index element={<PageComponent />} />;
+                                    }
+                                    // 그 외의 경로는 path에서 맨 앞의 '/'를 제거하여 상대 경로로 만듭니다.
+                                    return (
+                                        <Route
+                                            key={route.id}
+                                            path={route.path.substring(1)}
+                                            element={<PageComponent />}
+                                        />
+                                    );
+                                })}
                             </Route>
 
                             {/* 404 페이지 */}

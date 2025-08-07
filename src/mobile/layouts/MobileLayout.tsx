@@ -1,6 +1,6 @@
 // D:/ds_mui_new/src/mobile/layouts/MobileLayout.tsx
 
-import React, { useState, useCallback } from 'react'; // ★ useCallback import
+import React, { useState, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import {
     AppBar, Box, Toolbar, Typography, Drawer, List, ListItem,
@@ -9,7 +9,7 @@ import {
     Link as MuiLink,
 } from '@mui/material';
 
-// 아이콘 import
+// 아이콘 import (기존과 동일)
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -20,60 +20,40 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import SecurityIcon from '@mui/icons-material/Security';
-
+import ArticleIcon from '@mui/icons-material/Article';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import { useAuth } from '../../contexts/AuthContext';
 import { DsButton } from '../../components/button/DsButton';
 import { TitleS } from '../../components/typography';
 
-// Grid 타입 오류를 해결하기 위해 타입 검사를 비활성화합니다.
+// 타입 및 데이터 정의 (기존과 동일)
 const Grid: any = MuiGrid;
-
-// 메뉴 아이템 데이터 타입을 정의합니다.
-interface MenuItemData {
-    path: string;
-    label: string;
-    icon?: React.ElementType;
-}
-
-// 메뉴 데이터 정의 (기존과 동일)
+interface MenuItemData { path: string; label: string; icon?: React.ElementType; }
 const mainMenuItems: MenuItemData[] = [
-    { path: '/m/dashboard', label: '대시보드', icon: DashboardIcon },
+    { path: '/m', label: '대시보드', icon: DashboardIcon },
     { path: '/m/menu-config', label: '메뉴 관리', icon: ListAltIcon },
     { path: '/m/user-management', label: '사용자 관리', icon: ManageAccountsIcon },
-    { path: '/m/auth-group', label: '권한 그룹', icon: SecurityIcon }
+    { path: '/m/board', label: '게시판', icon: ArticleIcon },
 ];
 const quickAccessItems: MenuItemData[] = [
-    { path: '/m/menu-config', label: '메뉴 관리' },
-    { path: '/m/user-management', label: '사용자 관리' },
-    { path: '/m/auth-group', label: '권한 그룹' },
+    { path: '/m/menu-config', label: 'Search' },
+    { path: '/m/video-list', label: 'Video' },
 ];
 const menuSettingsItems: MenuItemData[] = [
-    { path: '/m/menu-config', label: '메뉴 관리' },
-    { path: '/m/menu-obj-config', label: '메뉴 OBJ 관리' },
-];
-const userAuthItems: MenuItemData[] = [
-    { path: '/m/user-management', label: '사용자 관리' },
-    { path: '/m/user-menu-auth', label: '사용자별 메뉴 권한' },
-    { path: '/m/auth-group', label: '권한 그룹 관리' },
-    { path: '/m/auth-group-user', label: '그룹별 사용자 설정' },
+    { path: '/m/menu-config', label: 'Search' },
+    { path: '/m/menu-obj-config', label: 'Search + Grid' },
+    { path: '/m/search', label: 'Search -> List -> Detail' },
 ];
 const templateItems: MenuItemData[] = [
     ...menuSettingsItems,
-    ...userAuthItems,
+    { path: '/m/user-management', label: 'List Group + Detail' },
     { path: '/m/store-list', label: 'List Group = Image+TextInfo' },
-    { path: '/m/tab-search', label: 'Tab = Tab + Search' },
-    { path: '/m/board', label: '게시판' },
+    { path: '/m/tab-search', label: 'Tab = Tab+Search' },
+    { path: '/m/board', label: 'Board = List+Detail+Write+FileUpload' },
+    { path: '/m/report', label: 'Report = Tab(lev1)+Tab(lev2)+List+Chart' },
+    { path: '/m/video-list', label: 'Video = List + play', icon: OndemandVideoIcon },
 ];
-
-// 확장 가능한 섹션들의 상태 타입을 정의합니다.
-interface ExpandedSectionsState {
-    menuSettings: boolean;
-    userAuth: boolean;
-    template: boolean;
-}
-
-// MenuSection이 받을 props의 타입을 정의합니다.
+interface ExpandedSectionsState { menuSettings: boolean; userAuth: boolean; template: boolean; }
 interface MenuSectionProps {
     title: string;
     items: MenuItemData[];
@@ -106,7 +86,9 @@ const MenuSection = ({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     mb: 2,
-                    cursor: collapsible ? 'pointer' : 'default'
+                    cursor: collapsible ? 'pointer' : 'default',
+                    // ★ 탭 딜레이 제거 (1/4)
+                    touchAction: 'manipulation',
                 }}
             >
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px' }}>
@@ -134,9 +116,10 @@ const MenuSection = ({
                                             cursor: 'pointer',
                                             '&:hover': { bgcolor: 'action.hover' },
                                             borderRadius: 2,
+                                            // ★ 탭 딜레이 제거 (2/4)
+                                            touchAction: 'manipulation',
                                         }}
-                                        // ★★★ 핵심 수정 사항 (1/3) ★★★
-                                        onMouseDown={() => onMenuClick(item.path)}
+                                        onClick={() => onMenuClick(item.path)}
                                     >
                                         <CardContent sx={{ textAlign: 'center', p: 1, '&:last-child': { pb: 1 } }}>
                                             <Box sx={{
@@ -160,8 +143,17 @@ const MenuSection = ({
                             const isSelected = currentPath === item.path;
                             return (
                                 <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                                    {/* ★★★ 핵심 수정 사항 (2/3) ★★★ */}
-                                    <ListItemButton selected={isSelected} onMouseDown={() => onMenuClick(item.path)} sx={{ borderRadius: 2, py: 1.5, '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } } }}>
+                                    <ListItemButton
+                                        selected={isSelected}
+                                        onClick={() => onMenuClick(item.path)}
+                                        sx={{
+                                            borderRadius: 2,
+                                            py: 1.5,
+                                            '&.Mui-selected': { bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } },
+                                            // ★ 탭 딜레이 제거 (3/4)
+                                            touchAction: 'manipulation',
+                                        }}
+                                    >
                                         <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '15px', fontWeight: isSelected ? 600 : 400 }} />
                                     </ListItemButton>
                                 </ListItem>
@@ -195,7 +187,6 @@ export default function MobileLayout() {
         setDrawerOpen(!isDrawerOpen);
     };
 
-    // 불필요한 재정의를 막기 위해 useCallback으로 함수를 감쌉니다.
     const handleMenuClick = useCallback((path: string) => {
         navigate(path);
         setDrawerOpen(false);
@@ -280,15 +271,16 @@ export default function MobileLayout() {
                             {quickAccessItems.map((item) => {
                                 const isFavorite = favorites.has(item.path);
                                 return (
-                                    // ★★★ 핵심 수정 사항 (3/3) ★★★
                                     <DsButton
                                         key={item.path}
                                         variant="outlined"
                                         color="inherit"
-                                        onMouseDown={() => handleMenuClick(item.path)}
+                                        onClick={() => handleMenuClick(item.path)}
                                         sx={{
                                             flexShrink: 0, borderRadius: '50px', borderColor: 'divider',
-                                            p: 0, '&:hover': { bgcolor: 'action.hover' }
+                                            p: 0, '&:hover': { bgcolor: 'action.hover' },
+                                            // ★ 탭 딜레이 제거 (4/4) - 버튼에도 적용
+                                            touchAction: 'manipulation',
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: '6px' }}>
@@ -309,7 +301,7 @@ export default function MobileLayout() {
                 </Box>
 
                 <MenuSection
-                    title="메뉴 설정"
+                    title="Basic Form"
                     items={menuSettingsItems}
                     sectionKey="menuSettings"
                     collapsible={true}
@@ -318,16 +310,16 @@ export default function MobileLayout() {
                     onMenuClick={handleMenuClick}
                     currentPath={location.pathname}
                 />
-                <MenuSection
-                    title="사용자 및 권한"
-                    items={userAuthItems}
-                    sectionKey="userAuth"
-                    collapsible={true}
-                    isExpanded={expandedSections.userAuth}
-                    onSectionToggle={handleSectionToggle}
-                    onMenuClick={handleMenuClick}
-                    currentPath={location.pathname}
-                />
+                {/*<MenuSection*/}
+                {/*    title="사용자 및 권한"*/}
+                {/*    items={userAuthItems}*/}
+                {/*    sectionKey="userAuth"*/}
+                {/*    collapsible={true}*/}
+                {/*    isExpanded={expandedSections.userAuth}*/}
+                {/*    onSectionToggle={handleSectionToggle}*/}
+                {/*    onMenuClick={handleMenuClick}*/}
+                {/*    currentPath={location.pathname}*/}
+                {/*/>*/}
 
                 <MenuSection
                     title="Template"
@@ -344,7 +336,16 @@ export default function MobileLayout() {
 
                 {user && (
                     <Box>
-                        <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, py: 1.5, bgcolor: 'error.50', '&:hover': { bgcolor: 'error.100' } }}>
+                        <ListItemButton
+                            onClick={handleLogout}
+                            sx={{
+                                borderRadius: 2,
+                                py: 1.5,
+                                bgcolor: 'error.50',
+                                '&:hover': { bgcolor: 'error.100' },
+                                touchAction: 'manipulation',
+                            }}
+                        >
                             <ListItemIcon><LogoutIcon sx={{ color: 'error.main' }} /></ListItemIcon>
                             <ListItemText primary="로그아웃" primaryTypographyProps={{ color: 'error.main', fontWeight: 500 }} />
                         </ListItemButton>

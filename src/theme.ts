@@ -80,7 +80,12 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
             },
         },
         MuiAppBar: {
-            styleOverrides: { root: { boxShadow: 'none' } },
+            styleOverrides: {
+                root: {
+                    boxShadow: 'none',
+                    border: 0, // 테두리 제거
+                }
+            },
         },
         MuiPaper: {
             styleOverrides: {
