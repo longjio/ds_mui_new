@@ -45,7 +45,6 @@ const menuSettingsItems: MenuItemData[] = [
     { path: '/m/search', label: 'Search -> List -> Detail' },
 ];
 const templateItems: MenuItemData[] = [
-    ...menuSettingsItems,
     { path: '/m/user-management', label: 'List Group + Detail' },
     { path: '/m/store-list', label: 'List Group = Image+TextInfo' },
     { path: '/m/tab-search', label: 'Tab = Tab+Search' },
