@@ -215,9 +215,12 @@ export default function MobileHomePage() {
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
-                                        primary={activity.text}
+                                        primary={
+                                            <Typography variant="body2" component="span">
+                                                {activity.text}
+                                            </Typography>
+                                        }
                                         secondary={activity.time}
-                                        primaryTypographyProps={{ variant: 'body2' }}
                                     />
                                 </ListItem>
                                 {index < recentActivities.length - 1 && <Divider variant="inset" component="li" />}
