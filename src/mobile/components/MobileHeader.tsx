@@ -24,12 +24,11 @@ export default function MobileHeader({
                                          title,
                                          leftIcon = 'home',
                                          rightIcon = 'menu',
-                                         onLeftIconClick, // ★ 1. onLeftIconClick prop 추가
+                                         onLeftIconClick,
                                          onRightIconClick,
                                      }: MobileHeaderProps) {
     const navigate = useNavigate();
 
-    // ★ 2. onLeftIconClick이 있으면 해당 함수를, 없으면 기본 뒤로가기 동작을 사용합니다.
     const handleBack = onLeftIconClick ? onLeftIconClick : () => navigate(-1);
     const handleHome = () => navigate('/m');
 
@@ -45,7 +44,9 @@ export default function MobileHeader({
             case 'home':
                 return (
                     <IconButton edge="start" color="inherit" onClick={handleHome} aria-label="go to home">
-                        <HomeOutlinedIcon />
+                        {/* ★★★ 핵심 수정 사항 ★★★ */}
+                        {/* 왼쪽 홈 아이콘에도 크기 조정을 적용합니다. */}
+                        <HomeOutlinedIcon sx={{ fontSize: 28 }} />
                     </IconButton>
                 );
             case 'none':
@@ -61,7 +62,9 @@ export default function MobileHeader({
             case 'home':
                 return (
                     <IconButton edge="end" color="inherit" onClick={handleHome} aria-label="home">
-                        <HomeOutlinedIcon />
+                        {/* ★★★ 핵심 수정 사항 ★★★ */}
+                        {/* 오른쪽 홈 아이콘에도 크기 조정을 적용합니다. */}
+                        <HomeOutlinedIcon sx={{ fontSize: 28 }} />
                     </IconButton>
                 );
             case 'menu':
@@ -82,9 +85,7 @@ export default function MobileHeader({
     };
 
     return (
-        // AppBar에 하단 테두리를 추가하여 시각적 구분을 줍니다.
         <AppBar position="static" elevation={0} color="inherit" sx={{ border: 0, flexShrink: 0 }}>
-            {/* ★ Toolbar에 좌우 패딩(px)을 20px로 설정합니다. */}
             <Toolbar sx={{ px: '20px' }}>
                 {renderLeftAction()}
                 <TitleS component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>

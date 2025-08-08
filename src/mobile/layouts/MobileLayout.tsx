@@ -86,8 +86,7 @@ const MenuSection = ({
                     justifyContent: 'space-between',
                     mb: 2,
                     cursor: collapsible ? 'pointer' : 'default',
-                    // ★ 탭 딜레이 제거 (1/4)
-                    touchAction: 'manipulation',
+                    //touchAction: 'manipulation',
                 }}
             >
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '16px' }}>

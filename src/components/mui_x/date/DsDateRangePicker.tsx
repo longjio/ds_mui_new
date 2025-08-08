@@ -13,10 +13,13 @@ import {
     SxProps,
     Theme,
     GlobalStyles,
-    // ★ 1. useTheme과 useMediaQuery를 import합니다.
     useTheme,
     useMediaQuery,
+    // ★ 1. AppBar, Toolbar, CloseIcon 관련 import를 제거합니다.
+    Dialog,
+    Slide,
 } from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { StaticDatePicker, PickersDay, PickersDayProps, DatePickerToolbarProps } from '@mui/x-date-pickers';
@@ -24,9 +27,22 @@ import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+// ★ 2. DsButton을 import 합니다.
+import { DsButton } from '../../button/DsButton';
 
 // dayjs의 로케일을 한국어로 설정합니다.
 dayjs.locale('ko');
+
+// 모바일 Dialog를 위한 슬라이드 애니메이션
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
 
 /**
  * DsDateRangePicker 컴포넌트의 Props 인터페이스
@@ -39,8 +55,7 @@ interface DsDateRangePickerProps {
 }
 
 /**
- * 달력 상단의 헤더를 커스텀 렌더링하는 컴포넌트
- * DatePickerToolbarProps와 커스텀 value prop을 모두 받도록 타입을 정의합니다.
+ * 달력 상단의 헤더를 커스텀 렌더링하는 컴포넌트 (데스크톱용)
  */
 function CustomPickerHeader(props: DatePickerToolbarProps & { value: Dayjs | null }) {
     const { value } = props;
@@ -53,9 +68,6 @@ function CustomPickerHeader(props: DatePickerToolbarProps & { value: Dayjs | nul
 
 /**
  * 날짜 범위 스타일을 적용하기 위한 커스텀 Day 렌더링 함수를 생성하는 고차 함수
- * @param selectedStart 선택된 시작일
- * @param selectedEnd 선택된 종료일
- * @returns 커스텀 PickersDay 컴포넌트
  */
 function createRangePickersDay(selectedStart: Dayjs | null, selectedEnd: Dayjs | null) {
     return function RangePickersDay(props: PickersDayProps): React.ReactElement {
@@ -119,36 +131,38 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
                                                                  initialEndDate = null,
                                                                  onChange,
                                                              }) => {
-    // ★ 2. 테마와 미디어 쿼리 훅을 사용하여 모바일 화면 여부를 감지합니다.
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+    const [isPickerOpen, setPickerOpen] = useState(false);
     const [tempStartDate, setTempStartDate] = useState<Dayjs | null>(initialStartDate);
     const [tempEndDate, setTempEndDate] = useState<Dayjs | null>(initialEndDate);
     const [leftCalendarMonth, setLeftCalendarMonth] = useState<Dayjs>(initialStartDate || dayjs());
 
     useEffect(() => {
-        if (anchorEl) {
+        if (isPickerOpen) {
             setTempStartDate(initialStartDate);
             setTempEndDate(initialEndDate);
             setLeftCalendarMonth(initialStartDate || dayjs());
         }
-    }, [anchorEl, initialStartDate, initialEndDate]);
+    }, [isPickerOpen, initialStartDate, initialEndDate]);
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget as HTMLDivElement);
+        setPickerOpen(true);
+    };
+
+    const handleClose = () => {
+        setPickerOpen(false);
+        setAnchorEl(null);
     };
 
     const handleConfirm = () => {
-        setAnchorEl(null);
         if (onChange) {
             onChange(tempStartDate, tempEndDate);
         }
-    };
-
-    const handleCancel = () => {
-        setAnchorEl(null);
+        handleClose();
     };
 
     const handleDateChange = (newValue: Dayjs | null) => {
@@ -173,9 +187,6 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
         }
     };
 
-    const open = Boolean(anchorEl);
-    const id = open ? 'date-range-popover' : undefined;
-
     const displayValue = useMemo(() => {
         if (initialStartDate && initialEndDate) {
             return `${initialStartDate.format('YYYY.MM.DD')} ~ ${initialEndDate.format('YYYY.MM.DD')}`;
@@ -184,6 +195,44 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
     }, [initialStartDate, initialEndDate]);
 
     const RangeDay = useMemo(() => createRangePickersDay(tempStartDate, tempEndDate), [tempStartDate, tempEndDate]);
+
+    // ★ 3. pickerContent에서 불필요한 패딩 관련 스타일을 제거하여 재사용성을 높입니다.
+    const pickerContent = (
+        <Stack
+            direction={isMobile ? 'column' : 'row'}
+            spacing={2}
+            sx={{
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+            }}
+        >
+            <Box>
+                <StaticDatePicker
+                    value={tempStartDate}
+                    onChange={handleDateChange}
+                    onMonthChange={(newMonth) => setLeftCalendarMonth(newMonth)}
+                    slots={{
+                        actionBar: () => null,
+                        toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth} />,
+                        day: RangeDay,
+                    }}
+                    referenceDate={leftCalendarMonth}
+                />
+            </Box>
+            <Box>
+                <StaticDatePicker
+                    value={tempEndDate}
+                    onChange={handleDateChange}
+                    referenceDate={leftCalendarMonth.add(1, 'month')}
+                    slots={{
+                        actionBar: () => null,
+                        toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth.add(1, 'month')} />,
+                        day: RangeDay,
+                    }}
+                />
+            </Box>
+        </Stack>
+    );
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
@@ -219,56 +268,66 @@ const DsDateRangePicker: React.FC<DsDateRangePickerProps> = ({
                     ),
                 }}
             />
-            <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleCancel}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                }}
-            >
-                <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                    <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <Box>
-                            <StaticDatePicker
-                                value={tempStartDate}
-                                onChange={handleDateChange}
-                                onMonthChange={(newMonth) => setLeftCalendarMonth(newMonth)}
-                                slots={{
-                                    actionBar: () => null,
-                                    // ★ 3. 모바일 화면에서는 헤더(Toolbar)를 숨깁니다.
-                                    toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth} />,
-                                    day: RangeDay,
-                                }}
-                                referenceDate={leftCalendarMonth}
-                            />
-                        </Box>
-                        <Box>
-                            <StaticDatePicker
-                                value={tempEndDate}
-                                onChange={handleDateChange}
-                                referenceDate={leftCalendarMonth.add(1, 'month')}
-                                slots={{
-                                    actionBar: () => null,
-                                    // ★ 4. 모바일 화면에서는 헤더(Toolbar)를 숨깁니다.
-                                    toolbar: isMobile ? () => null : (props) => <CustomPickerHeader {...props} value={leftCalendarMonth.add(1, 'month')} />,
-                                    day: RangeDay,
-                                }}
-                            />
-                        </Box>
-                    </Stack>
-                    <Stack direction="row" justifyContent="flex-end" spacing={1} sx={{ mt: 2 }}>
-                        <Button onClick={handleCancel}>취소</Button>
-                        <Button variant="contained" onClick={handleConfirm}>확인</Button>
-                    </Stack>
-                </Box>
-            </Popover>
+
+            {/* --- ★★★ 핵심 수정 사항 ★★★ --- */}
+            {isMobile ? (
+                <Dialog
+                    fullScreen
+                    open={isPickerOpen}
+                    onClose={handleClose}
+                    TransitionComponent={Transition}
+                    PaperProps={{
+                        sx: {
+                            // Flexbox를 사용하여 콘텐츠와 하단 버튼 영역을 분리합니다.
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                        }
+                    }}
+                >
+                    {/* 상단 AppBar를 제거합니다. */}
+
+                    {/* 1. 스크롤 가능한 달력 콘텐츠 영역 */}
+                    <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2, pt: 4 }}>
+                        {pickerContent}
+                    </Box>
+
+                    {/* 2. 화면 하단에 고정되는 '확인' 버튼 영역 */}
+                    <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
+                        <DsButton
+                            variant="contained"
+                            fullWidth
+                            onClick={handleConfirm}
+                            size="xlarge"
+                        >
+                            확인
+                        </DsButton>
+                    </Box>
+                </Dialog>
+            ) : (
+                <Popover
+                    id={isPickerOpen ? 'date-range-popover' : undefined}
+                    open={isPickerOpen}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                >
+                    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                        {pickerContent}
+                        <Stack direction="row" justifyContent="flex-end" spacing={1} sx={{ mt: 2 }}>
+                            <Button onClick={handleClose}>취소</Button>
+                            <Button variant="contained" onClick={handleConfirm}>확인</Button>
+                        </Stack>
+                    </Box>
+                </Popover>
+            )}
         </LocalizationProvider>
     );
 };

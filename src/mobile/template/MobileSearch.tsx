@@ -33,10 +33,10 @@ export default function MobileSearchPage() {
     const navigate = useNavigate();
     const { handleDrawerToggle } = useOutletContext<{ handleDrawerToggle: () => void }>();
 
-    const [system, setSystem] = useState('all');
+    const [system, setSystem] = useState('');
     const [menuId, setMenuId] = useState('');
     const [menuName, setMenuName] = useState('');
-    const [isUsed, setIsUsed] = useState('all');
+    const [isUsed, setIsUsed] = useState('');
     const [isResetDialogOpen, setResetDialogOpen] = useState(false); // ★ 다이얼로그 상태 추가
 
     const handleSearch = () => {

@@ -1,10 +1,12 @@
+// D:/ds_mui_new/src/theme.ts
+
 import 'pretendard/dist/web/static/pretendard.css';
 import { createTheme, ThemeOptions, Theme } from '@mui/material/styles';
 import { PaletteMode } from '@mui/material';
 import '@mui/x-data-grid/themeAugmentation';
 import React from 'react';
 
-// TypeScript 모듈 확장 (기존 코드와 동일, 훌륭합니다)
+// TypeScript 모듈 확장 (기존과 동일)
 declare module '@mui/material/styles' {
     interface Palette {
         charts: {
@@ -29,7 +31,6 @@ declare module '@mui/material/styles' {
     }
 }
 
-// [개선] 공통 설정 (기존 코드와 동일, 구조가 좋습니다)
 const commonSettings = (mode: PaletteMode): ThemeOptions => ({
     typography: {
         fontFamily: [
@@ -47,7 +48,6 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
         button: { textTransform: 'none' },
     },
     components: {
-
         MuiCssBaseline: {
             styleOverrides: (theme: Theme) => ({
                 body: {
@@ -64,6 +64,12 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
                     '&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover': {
                         backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[500],
                     },
+                },
+                // --- ★★★ 핵심 수정 사항 ★★★ ---
+                // 모바일 환경에서 300ms 탭(클릭) 딜레이를 제거하기 위한 전역 스타일입니다.
+                // 모든 링크, 버튼 및 버튼 역할을 하는 요소에 적용됩니다.
+                'a, button, [role="button"], .MuiListItemButton-root, .MuiCard-root, .MuiIconButton-root': {
+                    touchAction: 'manipulation',
                 },
             }),
         },
@@ -83,17 +89,15 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
             styleOverrides: {
                 root: {
                     boxShadow: 'none',
-                    border: 0, // 테두리 제거
+                    border: 0,
                 }
             },
         },
         MuiPaper: {
             styleOverrides: {
                 root: ({ theme }: { theme: Theme }) => ({
-                    // 1. 기존 그림자 효과를 제거합니다.
                     boxShadow: 'none',
                     border: `1px solid ${theme.palette.divider}`,
-                    // borderRadius: 0,
                 }),
             },
         },
@@ -110,16 +114,12 @@ const commonSettings = (mode: PaletteMode): ThemeOptions => ({
 });
 
 const customSuccessPalette = {
-    main: '#019AB2',      // 기본 색상
-    light: '#63D4E6',     // 더 밝은 색상
-    dark: '#12B886',      // 더 어두운 색상
-    contrastText: '#ffffff', // 대비되는 텍스트 색상 (흰색)
+    main: '#019AB2',
+    light: '#63D4E6',
+    dark: '#12B886',
+    contrastText: '#ffffff',
 };
 
-
-
-
-// [개선] 라이트/다크 모드 팔레트 (기존 코드와 동일)
 const lightPalette: ThemeOptions['palette'] = {
     mode: 'light',
     primary: { main: '#323F53' },
@@ -140,23 +140,17 @@ const darkPalette: ThemeOptions['palette'] = {
     charts: { main: '#A8B0BC', secondary: '#5c85d6', axis: '#919EAB' },
 };
 
-// [개선] 생성된 테마를 캐싱하여 불필요한 재계산을 방지
 const themeCache: { [key in PaletteMode]?: Theme } = {};
 
 export const getTheme = (mode: PaletteMode): Theme => {
-    // 캐시에 테마가 있으면 즉시 반환
     if (themeCache[mode]) {
         return themeCache[mode] as Theme;
     }
-
-    // 캐시에 없으면 새로 생성
     const palette = mode === 'light' ? lightPalette : darkPalette;
     const newTheme = createTheme({
         ...commonSettings(mode),
         palette,
     });
-
-    // 생성된 테마를 캐시에 저장
     themeCache[mode] = newTheme;
     return newTheme;
 };
